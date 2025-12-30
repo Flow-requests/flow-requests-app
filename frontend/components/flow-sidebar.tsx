@@ -1,0 +1,224 @@
+"use client";
+
+import { memo, useEffect, useState } from "react";
+import {
+  Webhook,
+  Globe,
+  GitBranch,
+  Code2,
+  ChevronLeft,
+  ChevronRight,
+  PlusCircle,
+  Repeat,
+  Play,
+  Icon,
+  X,
+  Sidebar,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
+interface FlowSidebarProps {
+  onAddNode: (type: string, customData: { [key: string]: any }) => void;
+  customNodes: any[];
+  httpRequestNodes: any[];
+}
+
+const FlowSidebar = memo(
+  ({ onAddNode, httpRequestNodes, customNodes }: FlowSidebarProps) => {
+    const [collapsed, setCollapsed] = useState(false);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [nodeTypes, setNodeTypes] = useState([
+      {
+        type: "start",
+        label: "Start",
+        icon: Play,
+        description: "Start point",
+        color: "text-blue-500",
+        bgColor: "bg-blue-50",
+        borderColor: "border-blue-200",
+      },
+      {
+        type: "api",
+        label: "API",
+        icon: Globe,
+        description: "Make HTTP requests to external APIs",
+        color: "text-green-500",
+        bgColor: "bg-green-50",
+        borderColor: "border-green-200",
+      },
+      {
+        type: "condition",
+        label: "Condition",
+        icon: GitBranch,
+        description: "Add conditional logic to your flow",
+        color: "text-amber-500",
+        bgColor: "bg-amber-50",
+        borderColor: "border-amber-200",
+      },
+      {
+        type: "code",
+        label: "Code",
+        icon: Code2,
+        description: "Run custom JavaScript code",
+        color: "text-purple-500",
+        bgColor: "bg-purple-50",
+        borderColor: "border-purple-200",
+      },
+      {
+        type: "loop",
+        label: "Loop",
+        icon: Repeat,
+        description: "Execute actions multiple times over a list",
+        color: "text-blue-500",
+        bgColor: "bg-blue-50",
+        borderColor: "border-blue-200",
+      },
+    ]);
+
+    const alreadyListed: { [key: string]: any } = {};
+
+    useEffect(() => {
+      setNodeTypes([...nodeTypes, ...httpRequestNodes, ...customNodes]);
+    }, [customNodes, httpRequestNodes]);
+
+    return (
+      <div
+        className={cn(
+          "h-full border-r bg-background transition-all duration-300 flex flex-col",
+          collapsed ? "w-14" : "w-64"
+        )}
+      >
+        <div className="flex items-center justify-between p-4 border-b">
+          <h2 className={cn("font-semibold", collapsed && "sr-only")}>
+            Components
+          </h2>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setCollapsed(!collapsed)}
+            className="h-7 w-7"
+            aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+          >
+            {collapsed ? (
+              <ChevronRight className="h-4 w-4" />
+            ) : (
+              <ChevronLeft className="h-4 w-4" />
+            )}
+          </Button>
+        </div>
+
+        {!collapsed && (
+          <div className="p-4 border-b">
+            <div className="relative">
+              <Input
+                type="text"
+                placeholder="Search nodes..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pr-8"
+              />
+              {searchTerm && (
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setSearchTerm("")}
+                  className="absolute right-1 top-1/2 -translate-y-1/2 h-6 w-6"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="w-4/4 h-full max-h-screen overflow-y-auto flex flex-col flex-grow">
+          <div
+            className={cn("space-y-2", collapsed && "space-y-3")}
+            style={{ marginBottom: "250px" }}
+          >
+            {nodeTypes
+              .filter((nodeType) => {
+                if (!alreadyListed[nodeType.label]) {
+                  alreadyListed[nodeType.label] = true;
+                  return (
+                    nodeType.label
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase()) ||
+                    nodeType.description
+                      .toLowerCase()
+                      .includes(searchTerm.toLowerCase())
+                  );
+                }
+                return false;
+              })
+              .map((nodeType, index) => {
+                return (
+                  <TooltipProvider
+                    key={`${nodeType.type}_${Date.now()}_${index}`}
+                    delayDuration={0}
+                  >
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          onClick={() =>
+                            onAddNode(nodeType.type, { ...nodeType })
+                          }
+                          className={cn(
+                            "w-full flex items-center gap-3 p-2 rounded-md transition-colors",
+                            nodeType.bgColor,
+                            nodeType.borderColor,
+                            "border hover:bg-muted",
+                            collapsed ? "justify-center" : "justify-start"
+                          )}
+                        >
+                          {nodeType.icon != null && (
+                            <nodeType.icon
+                              className={cn("h-5 w-5", nodeType.color)}
+                            />
+                          )}
+
+                          {nodeType.icon == null && (
+                            <Globe className={cn("h-5 w-5", nodeType.color)} />
+                          )}
+
+                          {!collapsed && (
+                            <div className="text-left">
+                              <div className="font-medium">
+                                {nodeType.label}
+                              </div>
+                              <div className="text-xs text-muted-foreground">
+                                {nodeType.description}
+                              </div>
+                            </div>
+                          )}
+                        </button>
+                      </TooltipTrigger>
+                      {collapsed && (
+                        <TooltipContent
+                          side="right"
+                          className="flex flex-col gap-1"
+                        >
+                          <div className="font-medium">{nodeType.label}</div>
+                          <div className="text-xs">{nodeType.description}</div>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
+                );
+              })}
+          </div>
+        </div>
+      </div>
+    );
+  }
+);
+
+export { FlowSidebar };
