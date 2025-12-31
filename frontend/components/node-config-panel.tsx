@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Trash, PlusCircle } from "lucide-react";
+import { X, Trash, PlusCircle, Variable } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -20,12 +20,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import NativeNodeType from "@/types/native-node-type.type";
+import VariableInput from "./variable-input";
 
 interface NodeConfigPanelProps {
   node: { [key: string]: any };
   onChange: (id: string, data: { [key: string]: any }) => void;
   onClose: () => void;
   isOpen?: boolean;
+  optionsMenu: Array<string>;
 }
 
 export default function NodeConfigPanel({
@@ -33,6 +35,7 @@ export default function NodeConfigPanel({
   onChange,
   onClose,
   isOpen = true,
+  optionsMenu = [],
 }: NodeConfigPanelProps) {
   const [config, setConfig] = useState({ ...node.data });
   const [headers, setHeaders] = useState<Array<{ [key: string]: any }>>([{}]);
@@ -115,11 +118,11 @@ export default function NodeConfigPanel({
     <>
       <div className="space-y-2">
         <Label htmlFor="endpoint">API Endpoint</Label>
-        <Input
-          id="endpoint"
+        <VariableInput
+          options={optionsMenu}
           value={config.endpoint || ""}
-          onChange={(e) => handleChange("endpoint", e.target.value)}
           placeholder="https://api.example.com/data"
+          onChange={(value) => handleChange("endpoint", value)}
         />
       </div>
       <div className="space-y-2">
@@ -146,18 +149,20 @@ export default function NodeConfigPanel({
             <div key={index} className="grid grid-cols-2 gap-1">
               <div>
                 <Label>Key</Label>
-                <Input
-                  value={item.key}
-                  onChange={(e) => onChangeHeader(index, "key", e.target.value)}
+                <VariableInput
+                  options={optionsMenu}
+                  value={item.key || ""}
+                  placeholder="api-key"
+                  onChange={(value) => onChangeHeader(index, "key", value)}
                 />
               </div>
               <div>
                 <Label>Value</Label>
-                <Input
+                <VariableInput
+                  options={optionsMenu}
                   value={item.value}
-                  onChange={(e) =>
-                    onChangeHeader(index, "value", e.target.value)
-                  }
+                  placeholder="value here"
+                  onChange={(value) => onChangeHeader(index, "value", value)}
                 />
               </div>
               <div className="grid grid-cols-2">
@@ -183,16 +188,20 @@ export default function NodeConfigPanel({
             <div key={index} className="grid grid-cols-2 gap-1">
               <div>
                 <Label>Key</Label>
-                <Input
+                <VariableInput
+                  options={optionsMenu}
                   value={item.key}
-                  onChange={(e) => onChangeBody(index, "key", e.target.value)}
+                  placeholder="key here"
+                  onChange={(value) => onChangeBody(index, "key", value)}
                 />
               </div>
               <div>
                 <Label>Value</Label>
-                <Input
+                <VariableInput
+                  options={optionsMenu}
                   value={item.value}
-                  onChange={(e) => onChangeBody(index, "value", e.target.value)}
+                  placeholder="value here"
+                  onChange={(value) => onChangeBody(index, "value", value)}
                 />
               </div>
               <div className="grid grid-cols-2">
@@ -239,11 +248,11 @@ export default function NodeConfigPanel({
         <div key={1} className="grid grid-cols-3">
           <div className="py-6">
             <Label></Label>
-            <Input
+            <VariableInput
+              options={optionsMenu}
               value={condition.left}
-              onChange={(e) =>
-                setCondition({ ...condition, left: e.target.value })
-              }
+              placeholder="value here"
+              onChange={(value) => setCondition({ ...condition, left: value })}
             />
           </div>
 
@@ -273,11 +282,11 @@ export default function NodeConfigPanel({
 
           <div className="px-1 py-6">
             <Label></Label>
-            <Input
+            <VariableInput
+              options={optionsMenu}
               value={condition.right}
-              onChange={(e) =>
-                setCondition({ ...condition, right: e.target.value })
-              }
+              placeholder="value here"
+              onChange={(value) => setCondition({ ...condition, right: value })}
             />
           </div>
           <div className="space-y-2">
@@ -301,13 +310,18 @@ export default function NodeConfigPanel({
     <>
       <div className="space-y-2">
         <Label htmlFor="code">JavaScript Code</Label>
-        <Textarea
+        <VariableInput
+          type={"textarea"}
+          value={config.code}
+          onChange={(value) => handleChange("code", value)}
+        />
+        {/* <Textarea
           onChange={(e) => handleChange("code", e.target.value)}
           rows={15}
           cols={55}
         >
           {config.code}
-        </Textarea>
+        </Textarea> */}
       </div>
       <div className="space-y-2">
         <Button
@@ -329,10 +343,11 @@ export default function NodeConfigPanel({
       <>
         <div key={config.name} className="space-y-2">
           <Label htmlFor={config.name}>Source of data</Label>
-          <Input
-            id="source_of_data"
+          <VariableInput
+            options={optionsMenu}
             value={config.source}
-            onChange={(e: any) => handleChange("source", e.target.value)}
+            placeholder="value here"
+            onChange={(value) => handleChange("source", value)}
           />
         </div>
         <div className="space-y-2">
@@ -427,14 +442,11 @@ export default function NodeConfigPanel({
                   <Label htmlFor={property.name}>
                     {property.label} {requiredOrOptional}
                   </Label>
-                  <Input
-                    id={property.name}
-                    value={
-                      config[property.name] || node.data[property.name] || ""
-                    }
-                    onChange={(e) =>
-                      handleChange(property.name, e.target.value)
-                    }
+                  <VariableInput
+                    placeholder="Type value here"
+                    options={optionsMenu}
+                    value={config[property.name] || node.data[property.name]}
+                    onChange={(value) => handleChange(property.name, value)}
                   />
                 </div>
               );
@@ -510,7 +522,7 @@ export default function NodeConfigPanel({
           {node.type === NativeNodeType.start && renderWebhookConfig()}
           {node.type === NativeNodeType.api && renderApiConfig()}
           {node.type === NativeNodeType.condition && renderConditionConfig()}
-          {node.type === NativeNodeType.code && renderCodeConfig()}
+          {/* {node.type === NativeNodeType.code && renderCodeConfig()} */}
           {node.type === NativeNodeType.loop && renderLoopNode()}
           {!mapNativeNode[node.type] && renderCustomNodeConfig()}
         </div>

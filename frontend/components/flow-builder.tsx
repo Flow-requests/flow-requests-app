@@ -48,6 +48,8 @@ import useWorkflow from "@/hooks/useWorkflow";
 import NativeNodeType from "@/types/native-node-type.type";
 import Message from "@/types/message";
 import EnvData from "@/types/env-data";
+import VariableInput from "./variable-input";
+import TYPE_OPTION_MENU from "@/types/type-option-menu";
 
 const validationDataNodeTypes: {
   [key: string]: z.ZodObject<{ [key: string]: any }>;
@@ -153,6 +155,225 @@ export default function FlowBuilder({
   const [httpRequestNodes, setHttpRequestNodes] = useState<any[]>([]);
   const [envData, setenvData] = useState<EnvData[]>([]);
   const [isEnvDataModalOpen, setIsEnvDataModalOpen] = useState(false);
+  const [optionsMenu, setOptionsMenu] = useState<Array<string>>([
+    "{{this.state.faker.person.firstName()}}",
+    "{{this.state.faker.person.lastName()}}",
+    "{{this.state.faker.person.fullName()}}",
+    "{{this.state.faker.person.gender()}}",
+    "{{this.state.faker.person.sex()}}",
+    "{{this.state.faker.person.jobTitle()}}",
+    "{{this.state.faker.person.jobArea()}}",
+    "{{this.state.faker.person.jobDescriptor()}}",
+    "{{this.state.faker.person.jobType()}}",
+    "{{this.state.faker.person.prefix()}}",
+    "{{this.state.faker.person.suffix()}}",
+    "{{this.state.faker.person.middleName()}}",
+    "{{this.state.faker.person.bio()}}",
+    "{{this.state.faker.location.streetAddress()}}",
+    "{{this.state.faker.location.city()}}",
+    "{{this.state.faker.location.state()}}",
+    "{{this.state.faker.location.zipCode()}}",
+    "{{this.state.faker.location.country()}}",
+    "{{this.state.faker.location.countryCode()}}",
+    "{{this.state.faker.location.latitude()}}",
+    "{{this.state.faker.location.longitude()}}",
+    "{{this.state.faker.location.direction()}}",
+    "{{this.state.faker.location.ordinalDirection()}}",
+    "{{this.state.faker.location.nearbyGPSCoordinate()}}",
+    "{{this.state.faker.location.timeZone()}}",
+    "{{this.state.faker.location.streetName()}}",
+    "{{this.state.faker.location.streetSuffix()}}",
+    "{{this.state.faker.location.buildingNumber()}}",
+    "{{this.state.faker.location.secondaryAddress()}}",
+    "{{this.state.faker.internet.email()}}",
+    "{{this.state.faker.internet.userName()}}",
+    "{{this.state.faker.internet.password()}}",
+    "{{this.state.faker.internet.url()}}",
+    "{{this.state.faker.internet.domainName()}}",
+    "{{this.state.faker.internet.domainSuffix()}}",
+    "{{this.state.faker.internet.domainWord()}}",
+    "{{this.state.faker.internet.ip()}}",
+    "{{this.state.faker.internet.ipv6()}}",
+    "{{this.state.faker.internet.port()}}",
+    "{{this.state.faker.internet.userAgent()}}",
+    "{{this.state.faker.internet.httpMethod()}}",
+    "{{this.state.faker.internet.httpStatusCode()}}",
+    "{{this.state.faker.internet.color()}}",
+    "{{this.state.faker.internet.mac()}}",
+    "{{this.state.faker.internet.emoji()}}",
+    "{{this.state.faker.company.name()}}",
+    "{{this.state.faker.company.suffix()}}",
+    "{{this.state.faker.company.catchPhrase()}}",
+    "{{this.state.faker.company.bs()}}",
+    "{{this.state.faker.company.catchPhraseAdjective()}}",
+    "{{this.state.faker.company.catchPhraseDescriptor()}}",
+    "{{this.state.faker.company.catchPhraseNoun()}}",
+    "{{this.state.faker.company.bsAdjective()}}",
+    "{{this.state.faker.company.bsBuzz()}}",
+    "{{this.state.faker.company.bsNoun()}}",
+    "{{this.state.faker.finance.account()}}",
+    "{{this.state.faker.finance.accountName()}}",
+    "{{this.state.faker.finance.amount()}}",
+    "{{this.state.faker.finance.bic()}}",
+    "{{this.state.faker.finance.bitcoinAddress()}}",
+    "{{this.state.faker.finance.creditCardCVV()}}",
+    "{{this.state.faker.finance.creditCardIssuer()}}",
+    "{{this.state.faker.finance.creditCardNumber()}}",
+    "{{this.state.faker.finance.currencyCode()}}",
+    "{{this.state.faker.finance.currencyName()}}",
+    "{{this.state.faker.finance.currencySymbol()}}",
+    "{{this.state.faker.finance.ethereumAddress()}}",
+    "{{this.state.faker.finance.iban()}}",
+    "{{this.state.faker.finance.litecoinAddress()}}",
+    "{{this.state.faker.finance.mask()}}",
+    "{{this.state.faker.finance.pin()}}",
+    "{{this.state.faker.finance.routingNumber()}}",
+    "{{this.state.faker.finance.transactionDescription()}}",
+    "{{this.state.faker.finance.transactionType()}}",
+    "{{this.state.faker.date.past()}}",
+    "{{this.state.faker.date.future()}}",
+    "{{this.state.faker.date.between()}}",
+    "{{this.state.faker.date.recent()}}",
+    "{{this.state.faker.date.soon()}}",
+    "{{this.state.faker.date.birthdate()}}",
+    "{{this.state.faker.date.month()}}",
+    "{{this.state.faker.date.weekday()}}",
+    "{{this.state.faker.lorem.word()}}",
+    "{{this.state.faker.lorem.words()}}",
+    "{{this.state.faker.lorem.sentence()}}",
+    "{{this.state.faker.lorem.sentences()}}",
+    "{{this.state.faker.lorem.paragraph()}}",
+    "{{this.state.faker.lorem.paragraphs()}}",
+    "{{this.state.faker.lorem.text()}}",
+    "{{this.state.faker.lorem.lines()}}",
+    "{{this.state.faker.lorem.slug()}}",
+    "{{this.state.faker.phone.number()}}",
+    "{{this.state.faker.phone.imei()}}",
+    "{{this.state.faker.image.avatar()}}",
+    "{{this.state.faker.image.url()}}",
+    "{{this.state.faker.image.urlLoremFlickr()}}",
+    "{{this.state.faker.image.urlPicsumPhotos()}}",
+    "{{this.state.faker.image.urlPlaceholder()}}",
+    "{{this.state.faker.image.dataUri()}}",
+    "{{this.state.faker.animal.type()}}",
+    "{{this.state.faker.animal.dog()}}",
+    "{{this.state.faker.animal.cat()}}",
+    "{{this.state.faker.animal.snake()}}",
+    "{{this.state.faker.animal.bear()}}",
+    "{{this.state.faker.animal.lion()}}",
+    "{{this.state.faker.animal.cetacean()}}",
+    "{{this.state.faker.animal.horse()}}",
+    "{{this.state.faker.animal.bird()}}",
+    "{{this.state.faker.animal.cow()}}",
+    "{{this.state.faker.animal.fish()}}",
+    "{{this.state.faker.animal.crocodilia()}}",
+    "{{this.state.faker.animal.insect()}}",
+    "{{this.state.faker.animal.rabbit()}}",
+    "{{this.state.faker.vehicle.vehicle()}}",
+    "{{this.state.faker.vehicle.manufacturer()}}",
+    "{{this.state.faker.vehicle.model()}}",
+    "{{this.state.faker.vehicle.type()}}",
+    "{{this.state.faker.vehicle.fuel()}}",
+    "{{this.state.faker.vehicle.vin()}}",
+    "{{this.state.faker.vehicle.color()}}",
+    "{{this.state.faker.vehicle.vrm()}}",
+    "{{this.state.faker.commerce.department()}}",
+    "{{this.state.faker.commerce.productName()}}",
+    "{{this.state.faker.commerce.price()}}",
+    "{{this.state.faker.commerce.productAdjective()}}",
+    "{{this.state.faker.commerce.productMaterial()}}",
+    "{{this.state.faker.commerce.product()}}",
+    "{{this.state.faker.database.column()}}",
+    "{{this.state.faker.database.type()}}",
+    "{{this.state.faker.database.collation()}}",
+    "{{this.state.faker.database.engine()}}",
+    "{{this.state.faker.music.genre()}}",
+    "{{this.state.faker.music.songName()}}",
+    "{{this.state.faker.system.fileName()}}",
+    "{{this.state.faker.system.commonFileName()}}",
+    "{{this.state.faker.system.mimeType()}}",
+    "{{this.state.faker.system.commonFileType()}}",
+    "{{this.state.faker.system.commonFileExt()}}",
+    "{{this.state.faker.system.fileType()}}",
+    "{{this.state.faker.system.fileExt()}}",
+    "{{this.state.faker.system.directoryPath()}}",
+    "{{this.state.faker.system.filePath()}}",
+    "{{this.state.faker.system.semver()}}",
+    "{{this.state.faker.science.chemicalElement()}}",
+    "{{this.state.faker.science.unit()}}",
+    "{{this.state.faker.airline.airplane()}}",
+    "{{this.state.faker.airline.airport()}}",
+    "{{this.state.faker.airline.airline()}}",
+    "{{this.state.faker.airline.aircraftType()}}",
+    "{{this.state.faker.airline.flightNumber()}}",
+    "{{this.state.faker.airline.seat()}}",
+    "{{this.state.faker.airline.recordLocator()}}",
+    "{{this.state.faker.color.human()}}",
+    "{{this.state.faker.color.space()}}",
+    "{{this.state.faker.color.cssSupportedFunction()}}",
+    "{{this.state.faker.color.cssSupportedSpace()}}",
+    "{{this.state.faker.color.rgb()}}",
+    "{{this.state.faker.color.hsl()}}",
+    "{{this.state.faker.color.hwb()}}",
+    "{{this.state.faker.color.cmyk()}}",
+    "{{this.state.faker.color.lab()}}",
+    "{{this.state.faker.color.lch()}}",
+    "{{this.state.faker.color.colorByCSSColorSpace()}}",
+    "{{this.state.faker.git.branch()}}",
+    "{{this.state.faker.git.commitEntry()}}",
+    "{{this.state.faker.git.commitMessage()}}",
+    "{{this.state.faker.git.commitSha()}}",
+    "{{this.state.faker.git.shortSha()}}",
+    "{{this.state.faker.hacker.abbreviation()}}",
+    "{{this.state.faker.hacker.adjective()}}",
+    "{{this.state.faker.hacker.noun()}}",
+    "{{this.state.faker.hacker.verb()}}",
+    "{{this.state.faker.hacker.ingverb()}}",
+    "{{this.state.faker.hacker.phrase()}}",
+    "{{this.state.faker.helpers.arrayElement()}}",
+    "{{this.state.faker.helpers.arrayElements()}}",
+    "{{this.state.faker.helpers.shuffle()}}",
+    "{{this.state.faker.helpers.unique()}}",
+    "{{this.state.faker.helpers.mustache()}}",
+    "{{this.state.faker.helpers.createCard()}}",
+    "{{this.state.faker.helpers.contextualCard()}}",
+    "{{this.state.faker.helpers.userCard()}}",
+    "{{this.state.faker.helpers.createTransaction()}}",
+    "{{this.state.faker.helpers.rangeToNumber()}}",
+    "{{this.state.faker.helpers.regexpStyleStringParse()}}",
+    "{{this.state.faker.helpers.fromRegExp()}}",
+    "{{this.state.faker.helpers.replaceSymbolWithNumber()}}",
+    "{{this.state.faker.helpers.replaceSymbols()}}",
+    "{{this.state.faker.helpers.slugify()}}",
+    "{{this.state.faker.helpers.enumValue()}}",
+    "{{this.state.faker.helpers.objectKey()}}",
+    "{{this.state.faker.helpers.objectValue()}}",
+    "{{this.state.faker.helpers.weightedArrayElement()}}",
+    "{{this.state.faker.datatype.boolean()}}",
+    "{{this.state.faker.datatype.number()}}",
+    "{{this.state.faker.datatype.float()}}",
+    "{{this.state.faker.datatype.datetime()}}",
+    "{{this.state.faker.datatype.string()}}",
+    "{{this.state.faker.datatype.uuid()}}",
+    "{{this.state.faker.datatype.json()}}",
+    "{{this.state.faker.datatype.hexadecimal()}}",
+    "{{this.state.faker.random.word()}}",
+    "{{this.state.faker.random.words()}}",
+    "{{this.state.faker.random.locale()}}",
+    "{{this.state.faker.string.alpha()}}",
+    "{{this.state.faker.string.alphanumeric()}}",
+    "{{this.state.faker.string.binary()}}",
+    "{{this.state.faker.string.hexadecimal()}}",
+    "{{this.state.faker.string.numeric()}}",
+    "{{this.state.faker.string.octal()}}",
+    "{{this.state.faker.string.symbol()}}",
+    "{{this.state.faker.string.fromCharacters()}}",
+    "{{this.state.faker.string.uuid()}}",
+    "{{this.state.faker.string.nanoid()}}",
+    "{{this.state.faker.number.int()}}",
+    "{{this.state.faker.number.float()}}",
+    "{{this.state.faker.number.bigInt()}}",
+  ]);
 
   const {
     updateWorkflow,
@@ -441,6 +662,8 @@ export default function FlowBuilder({
       name: `trigger_${typeLabel}_${nodes.length + 1}`.toLowerCase(),
       ...customData,
     };
+
+    setOptionsOfMenu(TYPE_OPTION_MENU.NEW_NODE, data.name);
 
     const newNode = {
       id: `${nodes.length + 1}`,
@@ -800,6 +1023,19 @@ export default function FlowBuilder({
     });
   };
 
+  const setOptionsOfMenu = (type: string, values: string | EnvData[]) => {
+    if (type == TYPE_OPTION_MENU.ENV_DATA) {
+      const items: EnvData[] = values as EnvData[];
+      setOptionsMenu([
+        ...optionsMenu,
+        ...items.map((item) => `{{this.state.envData.${item.key}}}`),
+      ]);
+    } else if (type == TYPE_OPTION_MENU.NEW_NODE) {
+      const item: string = values as string;
+      setOptionsMenu([...optionsMenu, `{{this.state.steps.${item}.output}}`]);
+    }
+  };
+
   useEffect(() => {
     if (workflowToEdit) {
       loadCustomNodes().then(() => {
@@ -918,6 +1154,7 @@ export default function FlowBuilder({
         </div>
         {selectedNode && (
           <NodeConfigPanel
+            optionsMenu={optionsMenu}
             node={selectedNode}
             onChange={onNodeConfigChange}
             onClose={closeConfigPanel}
@@ -928,7 +1165,10 @@ export default function FlowBuilder({
           isOpen={isEnvDataModalOpen}
           onClose={() => setIsEnvDataModalOpen(false)}
           envData={envData}
-          onSave={setenvData}
+          onSave={(data) => {
+            setOptionsOfMenu(TYPE_OPTION_MENU.ENV_DATA, data);
+            setenvData(data);
+          }}
         />
         <LogsModal
           isOpen={isLogsModalOpen}

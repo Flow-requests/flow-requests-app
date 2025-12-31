@@ -129,8 +129,11 @@ class WorkflowEngine {
             },
           };
         } else {
+          console.log(error);
           output = {
-            error: error.message,
+            error: {
+              message: error.message,
+            },
           };
         }
       }

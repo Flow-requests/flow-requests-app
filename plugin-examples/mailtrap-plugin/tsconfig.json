@@ -1,4 +1,4 @@
-{../todo-plugin/src../todo-plugin/dist../todo-plugin/src/**/*../todo-plugin/node_modules../todo-plugin/dist../todo-plugin/tests/**/*
+{
   // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
     // File Layout

@@ -73,9 +73,6 @@ export default class HttpRequestNode extends NodeBase {
         continue;
       }
 
-      console.log(this.state);
-      console.log(item.value);
-      console.log(eval(item.value.replace("{{", "").replace("}}", "")));
       let value = this.parseExpression(item.value);
       try {
         requestBody[item.key] = JSON.parse(value);

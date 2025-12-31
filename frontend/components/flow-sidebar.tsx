@@ -64,15 +64,6 @@ const FlowSidebar = memo(
         borderColor: "border-amber-200",
       },
       {
-        type: "code",
-        label: "Code",
-        icon: Code2,
-        description: "Run custom JavaScript code",
-        color: "text-purple-500",
-        bgColor: "bg-purple-50",
-        borderColor: "border-purple-200",
-      },
-      {
         type: "loop",
         label: "Loop",
         icon: Repeat,
