@@ -1023,16 +1023,27 @@ export default function FlowBuilder({
     });
   };
 
-  const setOptionsOfMenu = (type: string, values: string | EnvData[]) => {
+  const setOptionsOfMenu = (
+    type: string,
+    values: Array<string> | string | EnvData[]
+  ) => {
     if (type == TYPE_OPTION_MENU.ENV_DATA) {
       const items: EnvData[] = values as EnvData[];
-      setOptionsMenu([
-        ...optionsMenu,
+      setOptionsMenu((oldOptionsMenu) => [
+        ...oldOptionsMenu,
         ...items.map((item) => `{{this.state.envData.${item.key}}}`),
       ]);
     } else if (type == TYPE_OPTION_MENU.NEW_NODE) {
       const item: string = values as string;
-      setOptionsMenu([...optionsMenu, `{{this.state.steps.${item}.output}}`]);
+      setOptionsMenu((oldOptionsMenu) => [
+        ...oldOptionsMenu,
+        `{{this.state.steps.${item}.output}}`,
+      ]);
+    } else if (type == TYPE_OPTION_MENU.NEW_MANY_NODES) {
+      let items: Array<string> = values as Array<string>;
+      items = items.map((item) => `{{this.state.steps.${item}.output}}`);
+      console.log(items);
+      setOptionsMenu((oldOptionsMenu) => [...oldOptionsMenu, ...items]);
     }
   };
 
@@ -1052,10 +1063,18 @@ export default function FlowBuilder({
               return node;
             }
           );
+
+        let nodesName: Array<string> =
+          workflowToEdit.originalWorkflow.nodes.map(
+            (item: { [key: string]: any }) => item?.data?.name
+          );
+
         setNodes(workflowToEdit.originalWorkflow.nodes);
         setEdges(workflowToEdit.originalWorkflow.edges);
         setWorkflowId(workflowToEdit.id);
         setenvData([...workflowToEdit.envData]);
+        setOptionsOfMenu(TYPE_OPTION_MENU.NEW_MANY_NODES, nodesName);
+        setOptionsOfMenu(TYPE_OPTION_MENU.ENV_DATA, workflowToEdit.envData);
       });
     }
   }, [workflowToEdit]);

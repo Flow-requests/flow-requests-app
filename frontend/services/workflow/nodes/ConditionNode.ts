@@ -1,8 +1,13 @@
-import { LinkedList, NodeBase, NodeInput, NodeReturn } from "core-package-mini-n8n";
+import {
+  LinkedList,
+  NodeBase,
+  NodeInput,
+  NodeReturn,
+} from "core-package-mini-n8n";
 
 export default class ConditionNode extends NodeBase {
   constructor(state: any) {
-    super(state)
+    super(state);
   }
 
   getConfig() {
@@ -10,21 +15,22 @@ export default class ConditionNode extends NodeBase {
       name: "Condition",
       type: "condition",
       description: "Condition node",
-      ai_description: "Use this node when you can compare values or check something",
+      ai_description:
+        "Use this node when you can compare values or check something",
       properties: [
         {
           label: "Condition on left side",
           name: "left",
           type: "text",
           required: false,
-          default: ""
+          default: "",
         },
         {
           label: "Condition on right side",
           name: "right",
           type: "text",
           required: false,
-          default: ""
+          default: "",
         },
         {
           label: "Condition to compare the left and right data",
@@ -41,18 +47,32 @@ export default class ConditionNode extends NodeBase {
           `,
           default: "==",
           required: false,
-          type: "text"
+          type: "text",
         },
       ],
-    }
+    };
   }
 
   execute(node: NodeInput): Promise<NodeReturn | LinkedList> {
     const setting = node.settings;
-    const leftValue = this.parseExpression(setting.condition.left.value)
-    const rightValue = this.parseExpression(setting.condition.right.value)
+    let leftValue: string | number = this.parseExpression(
+      setting.condition.left.value
+    );
+    let rightValue: string | number = this.parseExpression(
+      setting.condition.right.value
+    );
 
-    const operatorMap: {[key: string]: (left: string, right: string) => boolean} = {
+    if (!isNaN(parseFloat(leftValue))) {
+      leftValue = parseFloat(leftValue);
+    }
+
+    if (!isNaN(parseFloat(rightValue))) {
+      rightValue = parseFloat(rightValue);
+    }
+
+    const operatorMap: {
+      [key: string]: (left: string, right: string) => boolean;
+    } = {
       "==": (left: string, right: string) => left == right,
       "===": (left: string, right: string) => left === right,
       "!=": (left: string, right: string) => left != right,
@@ -67,10 +87,11 @@ export default class ConditionNode extends NodeBase {
       throw new Error("Invalid operator");
     }
 
+    console.log(operatorMap[operator](leftValue, rightValue));
     if (operatorMap[operator](leftValue, rightValue)) {
       return setting.success;
     } else {
       return setting.fail;
     }
   }
-};
+}
