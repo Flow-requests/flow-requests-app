@@ -5,16 +5,6 @@ import { Trash2, Play } from "lucide-react";
 export const StartNode = memo(({ data, isConnectable }) => {
   return (
     <div className="rounded-md border bg-white p-3 shadow-sm">
-      <button
-        className="absolute top-2 right-2 text-gray-400 hover:text-red-500 transition-colors"
-        onClick={(e) => {
-          e.stopPropagation();
-          data.deleteNode();
-        }}
-        aria-label="Delete node"
-      >
-        <Trash2 className="h-4 w-4" />
-      </button>
       <div className="flex items-center gap-2">
         <Play className="h-5 w-5 text-blue-500" />
         <div className="font-medium">{data.label}</div>
