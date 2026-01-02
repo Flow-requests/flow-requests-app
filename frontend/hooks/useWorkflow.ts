@@ -9,6 +9,8 @@ import WorkflowEngine from "@/services/workflow/workflow-engine";
 import CustomNodeManager from "@/utils/custom-node-manager.util";
 import PackageUtil from "@/utils/package.util";
 import { Dexie } from "dexie";
+import WorkflowAssistantService from "@/services/workflow/workflow-assistant.service";
+import { convertResponsesDeltaToChatGenerationChunk } from "@langchain/openai";
 
 function useWorkflow() {
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
@@ -115,14 +117,8 @@ function useWorkflow() {
     db.version(1).stores({
       workflows: "++id",
     });
-    console.log(id);
-    // const data = await db.workflows.where({ id: id }).toArray();
     const results = await db.workflows.toArray();
-
     const data = results.find((item) => item.id == id);
-
-    console.log(results);
-    console.log(data);
     setWorkflow(JSON.parse(data.data));
   };
 
@@ -141,7 +137,6 @@ function useWorkflow() {
     db.version(1).stores({
       workflows: "++id",
     });
-    console.log(data.workflowId);
     await db.workflows.update(data.workflowId, {
       data: JSON.stringify(data),
     });
@@ -157,8 +152,6 @@ function useWorkflow() {
     const results = await db.plugins.toArray();
     const packageUtil = new PackageUtil();
     const plugins = await packageUtil.load(results, {});
-    console.log(plugins[0].getConfig());
-
     return plugins.map((item) => item.getConfig());
   };
 
@@ -199,16 +192,36 @@ function useWorkflow() {
     }
   };
 
-  const handleUserChatMessage = async (content: string, nodes: Array<any>) => {
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_API_URL}/workflows-assistant`,
-      {
-        currentNodes: nodes || [],
-        prompt: content,
-      }
-    );
+  const getCustomNodesToUseAiAssistant = async () => {
+    const db = new Dexie("FlowRequests");
+    db.version(1).stores({
+      plugins: "++id",
+    });
 
-    return response;
+    const results = await db.plugins.toArray();
+    const packageUtil = new PackageUtil();
+    return packageUtil.load(results, {});
+  };
+
+  const handleUserChatMessage = async (content: string, nodes: Array<any>) => {
+    try {
+      const customNodes = await getCustomNodesToUseAiAssistant();
+      const workflowAssistant = new WorkflowAssistantService(customNodes);
+      const answer = await workflowAssistant.processUserMessage(nodes, content);
+
+      return {
+        data: {
+          result: answer,
+        },
+      };
+    } catch (error) {
+      console.log(error);
+      return {
+        data: {
+          result: error.message || error.response.data.error.messa,
+        },
+      };
+    }
   };
 
   return {

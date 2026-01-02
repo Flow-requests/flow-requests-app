@@ -35,11 +35,13 @@ import {
   Globe,
   Info,
   List,
+  Settings,
 } from "lucide-react";
 import { z } from "zod";
 import { CodeNode } from "./nodes/code-node";
 import { EnvDataModal } from "./env-data-modal";
 import { LogsModal } from "./logs-modal";
+import { SettingsModal } from "./settings-modal";
 import { FlowSidebar } from "./flow-sidebar";
 import { CustomNode } from "./nodes/custom-node";
 import ExecutionsDrawer from "./executions-drawer";
@@ -50,6 +52,7 @@ import Message from "@/types/message";
 import EnvData from "@/types/env-data";
 import VariableInput from "./variable-input";
 import TYPE_OPTION_MENU from "@/types/type-option-menu";
+import ChatComponent from "./chat-component";
 
 const validationDataNodeTypes: {
   [key: string]: z.ZodObject<{ [key: string]: any }>;
@@ -155,6 +158,10 @@ export default function FlowBuilder({
   const [httpRequestNodes, setHttpRequestNodes] = useState<any[]>([]);
   const [envData, setenvData] = useState<EnvData[]>([]);
   const [isEnvDataModalOpen, setIsEnvDataModalOpen] = useState(false);
+  const [settingsData, setSettingsData] = useState<any[]>([
+    { id: "openRouterToken", key: "openRouterToken", value: "" },
+  ]);
+  const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [optionsMenu, setOptionsMenu] = useState<Array<string>>([
     "{{this.state.faker.person.firstName()}}",
     "{{this.state.faker.person.lastName()}}",
@@ -398,6 +405,17 @@ export default function FlowBuilder({
   ]);
 
   const addNewNode = (data: { [key: string]: any }) => {
+    const httpRequestNodeItem: { [key: string]: any } = httpRequestNodes.find(
+      (item) => {
+        return item.label == data.label;
+      }
+    );
+
+    if (httpRequestNodeItem) {
+      addNode(data.type, { ...httpRequestNodeItem });
+      return;
+    }
+
     const customData: { [key: string]: any } = {};
     const nodeToAdd = data;
     if (nodeToAdd?.properties?.length > 0) {
@@ -528,7 +546,10 @@ export default function FlowBuilder({
 
   const handleSendMessage = async (content: string) => {
     try {
-      const response = await handleUserChatMessage(content, nodes);
+      const response = await handleUserChatMessage(content, [
+        ...nodes,
+        ...httpRequestNodes,
+      ]);
 
       setChatMessages((prev) => [
         ...prev,
@@ -1042,7 +1063,6 @@ export default function FlowBuilder({
     } else if (type == TYPE_OPTION_MENU.NEW_MANY_NODES) {
       let items: Array<string> = values as Array<string>;
       items = items.map((item) => `{{this.state.steps.${item}.output}}`);
-      console.log(items);
       setOptionsMenu((oldOptionsMenu) => [...oldOptionsMenu, ...items]);
     }
   };
@@ -1089,6 +1109,22 @@ export default function FlowBuilder({
     }
   }, []);
 
+  useEffect(() => {
+    const savedSettings = localStorage.getItem("appSettings");
+    if (savedSettings) {
+      try {
+        const parsed = JSON.parse(savedSettings);
+        setSettingsData(
+          parsed.length > 0
+            ? parsed
+            : [{ id: "openRouterToken", key: "openRouterToken", value: "" }]
+        );
+      } catch (error) {
+        console.error("Error loading settings:", error);
+      }
+    }
+  }, []);
+
   return (
     <div className="relative h-full">
       <ReactFlowProvider>
@@ -1114,6 +1150,14 @@ export default function FlowBuilder({
             <Controls />
             <Background />
             <Panel position="top-right" className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setIsSettingsModalOpen(true)}
+              >
+                <Settings className="mr-2 h-4 w-4" />
+                Settings
+              </Button>
               <Button
                 size="sm"
                 variant="outline"
@@ -1159,7 +1203,7 @@ export default function FlowBuilder({
             style={{ display: "none" }}
           />
 
-          {/* <ChatComponent
+          <ChatComponent
             messages={chatMessages}
             onSendMessage={handleSendMessage}
             placeholder="Need help with workflow creation?"
@@ -1169,7 +1213,7 @@ export default function FlowBuilder({
             isFloating={true}
             defaultPosition={{ x: 350, y: 100 }}
             defaultMinimized={true}
-          /> */}
+          />
         </div>
         {selectedNode && (
           <NodeConfigPanel
@@ -1194,6 +1238,15 @@ export default function FlowBuilder({
           onClose={() => setIsLogsModalOpen(false)}
           logs={logs}
           isLoading={isRunningWorkflow}
+        />
+        <SettingsModal
+          isOpen={isSettingsModalOpen}
+          onClose={() => setIsSettingsModalOpen(false)}
+          settings={settingsData}
+          onSave={(data) => {
+            setSettingsData(data);
+            localStorage.setItem("appSettings", JSON.stringify(data));
+          }}
         />
       </ReactFlowProvider>
       <ToastContainer />

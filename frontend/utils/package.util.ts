@@ -30,7 +30,6 @@ class PackageUtil {
         script.id = customPackage.libraryName;
         script.async = false;
         script.onload = async () => {
-          console.log(`${customPackage.libraryName} loaded successfully!`);
           resolve({});
         };
         script.onerror = () => {
