@@ -42,6 +42,7 @@ import { CodeNode } from "./nodes/code-node";
 import { EnvDataModal } from "./env-data-modal";
 import { LogsModal } from "./logs-modal";
 import { SettingsModal } from "./settings-modal";
+import { AddCurlModal } from "./add-curl-modal";
 import { FlowSidebar } from "./flow-sidebar";
 import { CustomNode } from "./nodes/custom-node";
 import ExecutionsDrawer from "./executions-drawer";
@@ -162,6 +163,7 @@ export default function FlowBuilder({
     { id: "openRouterToken", key: "openRouterToken", value: "" },
   ]);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+  const [isAddCurlModalOpen, setIsAddCurlModalOpen] = useState(false);
   const [optionsMenu, setOptionsMenu] = useState<Array<string>>([
     "{{this.state.faker.person.firstName()}}",
     "{{this.state.faker.person.lastName()}}",
@@ -1192,6 +1194,7 @@ export default function FlowBuilder({
                 onAddNode={addNode}
                 httpRequestNodes={httpRequestNodes}
                 customNodes={customNodes}
+                onAddCurl={() => setIsAddCurlModalOpen(true)}
               />
             </Panel>
           </ReactFlow>
@@ -1246,6 +1249,13 @@ export default function FlowBuilder({
           onSave={(data) => {
             setSettingsData(data);
             localStorage.setItem("appSettings", JSON.stringify(data));
+          }}
+        />
+        <AddCurlModal
+          isOpen={isAddCurlModalOpen}
+          onClose={() => setIsAddCurlModalOpen(false)}
+          onSave={(nodeData) => {
+            addNode("api", nodeData);
           }}
         />
       </ReactFlowProvider>

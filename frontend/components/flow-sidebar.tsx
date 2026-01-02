@@ -29,10 +29,16 @@ interface FlowSidebarProps {
   onAddNode: (type: string, customData: { [key: string]: any }) => void;
   customNodes: any[];
   httpRequestNodes: any[];
+  onAddCurl: () => void;
 }
 
 const FlowSidebar = memo(
-  ({ onAddNode, httpRequestNodes, customNodes }: FlowSidebarProps) => {
+  ({
+    onAddNode,
+    httpRequestNodes,
+    customNodes,
+    onAddCurl,
+  }: FlowSidebarProps) => {
     const [collapsed, setCollapsed] = useState(false);
     const [searchTerm, setSearchTerm] = useState("");
     const [nodeTypes, setNodeTypes] = useState([
@@ -127,6 +133,14 @@ const FlowSidebar = memo(
                 </Button>
               )}
             </div>
+          </div>
+        )}
+
+        {!collapsed && (
+          <div className="p-4 border-b">
+            <Button onClick={onAddCurl} variant="outline" className="w-full">
+              Convert curl
+            </Button>
           </div>
         )}
 

@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@bany/curl-to-json": "^1.2.8",
     "@faker-js/faker": "^10.1.0",
     "@langchain/openai": "^1.2.0",
     "@radix-ui/react-dialog": "^1.1.13",
