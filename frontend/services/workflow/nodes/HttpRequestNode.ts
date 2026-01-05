@@ -56,15 +56,6 @@ export default class HttpRequestNode extends NodeBase {
 
   async execute(node: NodeInput): Promise<NodeReturn | LinkedList> {
     const setting = node.settings;
-    if (setting.method.toUpperCase() == "GET") {
-      const response = await axios.get(this.parseExpression(setting.url));
-      return response.data;
-    }
-
-    if (setting.method.toUpperCase() == "DELETE") {
-      const response = await axios.delete(this.parseExpression(setting.url));
-      return response.data;
-    }
 
     const requestBody: { [key: string]: any } = {};
     for (let index = 0; index < setting.body.length; index += 1) {
@@ -95,6 +86,20 @@ export default class HttpRequestNode extends NodeBase {
       } catch (error) {
         requestHeaders[item.key] = value;
       }
+    }
+
+    if (setting.method.toUpperCase() == "GET") {
+      const response = await axios.get(this.parseExpression(setting.url), {
+        headers: requestHeaders,
+      });
+      return response.data;
+    }
+
+    if (setting.method.toUpperCase() == "DELETE") {
+      const response = await axios.delete(this.parseExpression(setting.url), {
+        headers: requestHeaders,
+      });
+      return response.data;
     }
 
     if (setting.method.toUpperCase() == "POST") {
