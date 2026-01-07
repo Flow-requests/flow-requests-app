@@ -1,0 +1,26 @@
+1:"$Sreact.fragment"
+2:I[87555,[],""]
+3:I[31295,[],""]
+4:I[11024,["503","static/chunks/503-7e9d9261194f0ccd.js","345","static/chunks/app/not-found-a1e36dfbc34b50c6.js"],"default"]
+5:I[90894,[],"ClientPageRoot"]
+6:I[76649,["389","static/chunks/b7936bf9-65e07135aa4f90fb.js","421","static/chunks/0b04d83a-a6f2a1a5f21f39a5.js","702","static/chunks/c37d3baf-827bdc480ea6a02c.js","503","static/chunks/503-7e9d9261194f0ccd.js","499","static/chunks/499-4e30d592702438b9.js","697","static/chunks/697-0002d66c021ad277.js","590","static/chunks/590-414d61450fe77b99.js","476","static/chunks/476-11a4a33532d67c4c.js","104","static/chunks/104-53fe90caf793a7da.js","106","static/chunks/app/workflows/new/page-90f206cef9553fc1.js"],"default"]
+9:I[59665,[],"MetadataBoundary"]
+b:I[59665,[],"OutletBoundary"]
+e:I[74911,[],"AsyncMetadataOutlet"]
+10:I[59665,[],"ViewportBoundary"]
+12:I[26614,[],""]
+:HL["/_next/static/media/4cf2300e9c8272f7-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/media/93f479601ee12b01-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/css/843652f263d9972d.css","style"]
+:HL["/_next/static/css/886f7af331f6427c.css","style"]
+0:{"P":null,"b":"LZQi6KlPjpMG_-siDdbOm","p":"","c":["","workflows","new"],"i":false,"f":[[["",{"children":["workflows",{"children":["new",{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/843652f263d9972d.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","children":["$","body",null,{"className":"__variable_188709 __variable_9a8899 antialiased","children":["$","$L2",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L3",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[["$","$L4",null,{}],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]}]]}],{"children":["workflows",["$","$1","c",{"children":[null,["$","$L2",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L3",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["new",["$","$1","c",{"children":[null,["$","$L2",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L3",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":[["$","$L5",null,{"Component":"$6","searchParams":{},"params":{},"promises":["$@7","$@8"]}],["$","$L9",null,{"children":"$La"}],[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/886f7af331f6427c.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","$Lb",null,{"children":["$Lc","$Ld",["$","$Le",null,{"promise":"$@f"}]]}]]}],{},null,false]},null,false]},null,false]},null,false],["$","$1","h",{"children":[null,["$","$1","C01ffYk7y6t6Fs6lQ6hHT",{"children":[["$","$L10",null,{"children":"$L11"}],["$","meta",null,{"name":"next-size-adjust","content":""}]]}],null]}],false]],"m":"$undefined","G":["$12","$undefined"],"s":false,"S":true}
+13:"$Sreact.suspense"
+14:I[74911,[],"AsyncMetadata"]
+7:{}
+8:{}
+a:["$","$13",null,{"fallback":null,"children":["$","$L14",null,{"promise":"$@15"}]}]
+d:null
+11:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+c:null
+15:{"metadata":[["$","title","0",{"children":"Flow Requests - Simplify API Testing and Workflow Automation"}],["$","meta","1",{"name":"description","content":"Flow Requests revolutionizes how you handle complex API workflows. Whether you're a developer or QA engineer, our platform makes testing intricate flows effortless with visual builders, imports, and no-code automation."}],["$","meta","2",{"name":"keywords","content":"nocode,workflow,n8n,zapier,automations,api,rest,restful,Insomnia,Postman,Bruno,Apidog,Requestly,Dev tool,QA tool,developer,QA,API testing,workflow automation,visual workflow builder,import collections,plugins,real-time testing,export import,no data storage,API integration,no-code automation,combine collections"}],["$","link","3",{"rel":"icon","href":"/favicon.ico","type":"image/x-icon","sizes":"16x16"}]],"error":null,"digest":"$undefined"}
+f:{"metadata":"$15:metadata","error":null,"digest":"$undefined"}
