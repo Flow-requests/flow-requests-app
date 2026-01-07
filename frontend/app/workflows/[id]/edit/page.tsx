@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import useWorkflow from "@/hooks/useWorkflow";
 
-export default function Home(params: { id: string }) {
+export default function Home({ params }) {
   const { workflow, getWorkflowById } = useWorkflow();
 
   useEffect(() => {

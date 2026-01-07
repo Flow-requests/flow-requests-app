@@ -71,7 +71,7 @@ export default class ConditionNode extends NodeBase {
     }
 
     const operatorMap: {
-      [key: string]: (left: string, right: string) => boolean;
+      [key: string]: (left: any, right: any) => boolean;
     } = {
       "==": (left: string, right: string) => left == right,
       "===": (left: string, right: string) => left === right,

@@ -97,6 +97,7 @@ class WorkflowEngine {
     while (start != null) {
       // @ts-ignore
       const item: { type: string; name: string; [key: string]: any } =
+        // @ts-ignore
         start?.value;
       let instance: NodeBase | undefined;
       let name: string | undefined = item.name;

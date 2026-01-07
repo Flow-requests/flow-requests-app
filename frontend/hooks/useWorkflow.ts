@@ -3,7 +3,6 @@ import Workflow from "../types/workflow";
 import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import LogEntry from "../types/log-entry";
-import Execution from "@/types/execution";
 import EnvData from "@/types/env-data";
 import WorkflowEngine from "@/services/workflow/workflow-engine";
 import CustomNodeManager from "@/utils/custom-node-manager.util";
@@ -20,8 +19,6 @@ function useWorkflow() {
   const [logs, setLogs] = useState<LogEntry[]>([]);
   const [isLogsModalOpen, setIsLogsModalOpen] = useState(false);
   const [isRunningWorkflow, setIsRunningWorkflow] = useState(false);
-  const [executions, setExecutions] = useState<Execution[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
 
   const getWorkflows = async () => {
     try {
@@ -253,8 +250,6 @@ function useWorkflow() {
     updateWorkflow,
     getCustomNodes,
     createWorkflow,
-    executions,
-    isLoading,
     handleUserChatMessage,
     exportFlows,
     importFlows,

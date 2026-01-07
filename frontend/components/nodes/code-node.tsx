@@ -4,7 +4,12 @@ import { memo } from "react";
 import { Handle, Position } from "reactflow";
 import { Code2, Copy, Trash2 } from "lucide-react";
 
-export const CodeNode = memo(({ data, isConnectable }) => {
+interface CodeNodeProps {
+  data: any;
+  isConnectable: boolean;
+}
+
+export const CodeNode = memo(({ data, isConnectable }: CodeNodeProps) => {
   const codePreview = data.code
     ? data.code.split("\n").slice(0, 3).join("\n") +
       (data.code.split("\n").length > 3 ? "..." : "")

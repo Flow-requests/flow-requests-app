@@ -33,6 +33,7 @@ class WorkflowAssistantService {
   }
 
   private getCreateTool() {
+    // @ts-ignore
     return tool(
       async ({ userPrompt }: { userPrompt: string }) => {
         let prompt =
@@ -100,6 +101,7 @@ class WorkflowAssistantService {
   }
 
   private getEditNodeTool() {
+    // @ts-ignore
     return tool(
       async ({
         userPrompt,

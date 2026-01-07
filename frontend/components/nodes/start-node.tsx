@@ -1,8 +1,12 @@
 import { memo } from "react";
 import { Handle, Position } from "reactflow";
 import { Play } from "lucide-react";
+interface StartNodeProps {
+  data: any;
+  isConnectable: boolean;
+}
 
-export const StartNode = memo(({ data, isConnectable }) => {
+export const StartNode = memo(({ data, isConnectable }: StartNodeProps) => {
   return (
     <div className="rounded-md border bg-white p-3 shadow-sm">
       <div className="flex items-center gap-2">
