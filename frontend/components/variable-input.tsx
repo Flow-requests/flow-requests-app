@@ -4,7 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-type inputType = "text" | "textarea";
+type inputType = "text";
 
 interface VariableInputProps {
   options?: string[];
@@ -85,8 +85,6 @@ export default function VariableInput({
   );
 
   const handleOptionSelect = (option: string) => {
-    console.log("@@@@@@@@@@@@@@");
-    console.log(option);
     setInputValue(option);
     onChange?.(option);
     setShowDropdown(false);

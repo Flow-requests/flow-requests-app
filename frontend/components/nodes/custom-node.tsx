@@ -3,11 +3,11 @@ import { Handle, Position } from "reactflow";
 import { Copy, Globe, Trash2 } from "lucide-react";
 
 interface CustomNodeProps {
-  data: any;
+  data: { [key: string]: any };
   isConnectable: boolean;
 }
 
-let name = "CustomNode"
+let name = "CustomNode";
 
 export const CustomNode = memo(({ data, isConnectable }: CustomNodeProps) => {
   name = data.name;

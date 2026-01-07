@@ -73,7 +73,7 @@ export function CodeEditor({
   const highlightedCode = () => {
     if (!value) return "";
 
-    let code = value
+    const code = value
       .replace(/&/g, "&amp;")
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;");

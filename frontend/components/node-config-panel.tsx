@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Trash, PlusCircle, Variable } from "lucide-react";
+import { Trash, PlusCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -112,7 +112,7 @@ export default function NodeConfigPanel({
     onChange(node.id, newConfig);
   };
 
-  const renderWebhookConfig = () => <></>;
+  const renderStartConfig = () => <></>;
 
   const renderApiConfig = () => (
     <>
@@ -310,18 +310,13 @@ export default function NodeConfigPanel({
     <>
       <div className="space-y-2">
         <Label htmlFor="code">JavaScript Code</Label>
-        <VariableInput
-          type={"textarea"}
-          value={config.code}
-          onChange={(value) => handleChange("code", value)}
-        />
-        {/* <Textarea
+        <Textarea
           onChange={(e) => handleChange("code", e.target.value)}
           rows={15}
           cols={55}
         >
           {config.code}
-        </Textarea> */}
+        </Textarea>
       </div>
       <div className="space-y-2">
         <Button
@@ -372,7 +367,7 @@ export default function NodeConfigPanel({
             const requiredOrOptional = property.required
               ? "(Required)"
               : "(Optional)";
-            let hasConditionShow = property?.conditionShow?.length > 0;
+            const hasConditionShow = property?.conditionShow?.length > 0;
             if (hasConditionShow) {
               const resultVerifications = property.conditionShow.filter(
                 (condition: any) => {
@@ -519,7 +514,7 @@ export default function NodeConfigPanel({
               placeholder="Enter a descriptive name for this step"
             />
           </div>
-          {node.type === NativeNodeType.start && renderWebhookConfig()}
+          {node.type === NativeNodeType.start && renderStartConfig()}
           {node.type === NativeNodeType.api && renderApiConfig()}
           {node.type === NativeNodeType.condition && renderConditionConfig()}
           {/* {node.type === NativeNodeType.code && renderCodeConfig()} */}

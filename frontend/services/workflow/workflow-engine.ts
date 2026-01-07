@@ -12,7 +12,6 @@ import CodeNode from "./nodes/CodeNode";
 import ConditionNode from "./nodes/ConditionNode";
 import HttpRequestNode from "./nodes/HttpRequestNode";
 import LoopNode from "./nodes/LoopNode";
-import ManualTriggerNode from "./nodes/ManualTriggerNode";
 import StartNode from "./nodes/StartNode";
 
 class WorkflowEngine {
@@ -86,7 +85,6 @@ class WorkflowEngine {
     const instanceByType: { [key: string]: (state: any) => NodeBase } = {
       start: (state: any) => new StartNode(state),
       api: (state: any) => new HttpRequestNode(state),
-      manual: (state: any) => new ManualTriggerNode(state),
       condition: (state: any) => new ConditionNode(state),
       code: (state: any) => new CodeNode(state),
       loop: (state: any) =>

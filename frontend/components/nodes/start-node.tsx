@@ -1,6 +1,6 @@
 import { memo } from "react";
 import { Handle, Position } from "reactflow";
-import { Trash2, Play } from "lucide-react";
+import { Play } from "lucide-react";
 
 export const StartNode = memo(({ data, isConnectable }) => {
   return (

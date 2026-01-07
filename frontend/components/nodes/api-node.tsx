@@ -7,7 +7,7 @@ interface ApiNodeProps {
   isConnectable: boolean;
 }
 
-let name = "CustomNode"
+let name = "CustomNode";
 
 export const ApiNode = memo(({ data, isConnectable }: ApiNodeProps) => {
   name = data.name;
@@ -58,9 +58,8 @@ export const ApiNode = memo(({ data, isConnectable }: ApiNodeProps) => {
         isConnectable={isConnectable}
         className="!bg-green-500"
       />
-      
     </div>
   );
 });
 
-ApiNode.displayName ="ApiNode";
+ApiNode.displayName = "ApiNode";

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -32,18 +32,8 @@ export function SettingsModal({
   isOpen,
   onClose,
   settings,
-  onSave,
 }: SettingsModalProps) {
-  const [data, setData] = useState<SettingsData[]>([]);
-
-  const handleAddData = () => {
-    const newData: SettingsData = {
-      id: `setting-${Date.now()}`,
-      key: "",
-      value: "",
-    };
-    setData([...data, newData]);
-  };
+  const [data, setData] = useState<SettingsData[]>([...settings]);
 
   const handleRemoveData = (id: string) => {
     setData(data.filter((item) => item.id !== id));
@@ -115,6 +105,7 @@ export function SettingsModal({
                         onChange={(e) =>
                           handleDataChange(item.id, "key", e.target.value)
                         }
+                        disabled={true}
                         placeholder="openRouterToken"
                       />
                     </div>
@@ -135,18 +126,6 @@ export function SettingsModal({
             )}
           </div>
         </ScrollArea>
-
-        <div className="pt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleAddData}
-            className="w-full"
-          >
-            <Plus className="mr-2 h-4 w-4" />
-            Add Setting
-          </Button>
-        </div>
 
         <DialogFooter>
           <Button variant="outline" onClick={onClose}>

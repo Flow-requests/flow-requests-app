@@ -5,7 +5,7 @@ import { Handle, Position } from "reactflow";
 import { Copy, Repeat, Trash2 } from "lucide-react";
 
 interface LoopNodeProps {
-  data: any;
+  data: { [key: string]: any };
   isConnectable: boolean;
 }
 

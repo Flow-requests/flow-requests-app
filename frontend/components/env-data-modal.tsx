@@ -1,13 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Plus, Trash2, Eye, EyeOff } from "lucide-react";
+import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
@@ -30,7 +29,6 @@ export function EnvDataModal({
   onSave,
 }: EnvDataModalProps) {
   const [data, setData] = useState<EnvData[]>([]);
-  const [showValues, setShowValues] = useState<Record<string, boolean>>({});
 
   const handleAddData = () => {
     const newData: EnvData = {
@@ -58,10 +56,6 @@ export function EnvDataModal({
         return item;
       })
     );
-  };
-
-  const toggleShowValue = (id: string) => {
-    setShowValues((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
   const handleSave = () => {

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Workflow from "../types/workflow";
-import axios, { AxiosError } from "axios";
+import { AxiosError } from "axios";
 import { toast } from "react-toastify";
 import LogEntry from "../types/log-entry";
 import Execution from "@/types/execution";
@@ -8,9 +8,11 @@ import EnvData from "@/types/env-data";
 import WorkflowEngine from "@/services/workflow/workflow-engine";
 import CustomNodeManager from "@/utils/custom-node-manager.util";
 import PackageUtil from "@/utils/package.util";
-import { Dexie } from "dexie";
 import WorkflowAssistantService from "@/services/workflow/workflow-assistant.service";
-import { convertResponsesDeltaToChatGenerationChunk } from "@langchain/openai";
+import * as workflowRepository from "@/repositories/workflow.repository";
+import * as pluginRepository from "@/repositories/plugins.repository";
+
+const packageUtil = new PackageUtil();
 
 function useWorkflow() {
   const [workflows, setWorkflows] = useState<Workflow[]>([]);
@@ -23,34 +25,15 @@ function useWorkflow() {
 
   const getWorkflows = async () => {
     try {
-      const db = new Dexie("FlowRequests");
-      db.version(1).stores({
-        workflows: "++id",
-      });
-      let results = await db.workflows.toArray();
-      results = results.map((item) => {
-        const data = JSON.parse(item.data);
-        return { id: item.id, name: data.name, data: JSON.parse(item.data) };
-      });
+      const results = await workflowRepository.getAll();
       setWorkflows(results);
     } catch (error: any) {
       toast.error(error.message || "Failed to fetch workflows");
     }
   };
 
-  const triggerWorkflow = async (workflowId: string) => {
-    await axios.get(
-      `${process.env.NEXT_PUBLIC_API_URL}/workflows/${workflowId}/trigger`
-    );
-    toast.success("Workflow triggered successfully");
-  };
-
   const deleteWorkflow = async (workflowId: string) => {
-    const db = new Dexie("FlowRequests");
-    db.version(1).stores({
-      workflows: "++id",
-    });
-    await db.workflows.delete(workflowId);
+    await workflowRepository.removeById(workflowId);
     getWorkflows();
   };
 
@@ -81,13 +64,7 @@ function useWorkflow() {
     setIsRunningWorkflow(true);
     setIsLogsModalOpen(true);
     try {
-      const db = new Dexie("FlowRequests");
-      db.version(1).stores({
-        plugins: "++id",
-      });
-
-      const results = await db.plugins.toArray();
-      const packageUtil = new PackageUtil();
+      const results = await pluginRepository.getAll();
       const customNodeManager = new CustomNodeManager(results, packageUtil);
       const workflowEngine = new WorkflowEngine(customNodeManager);
 
@@ -113,12 +90,7 @@ function useWorkflow() {
   };
 
   const getWorkflowById = async (id: string) => {
-    const db = new Dexie("FlowRequests");
-    db.version(1).stores({
-      workflows: "++id",
-    });
-    const results = await db.workflows.toArray();
-    const data = results.find((item) => item.id == id);
+    const data = await workflowRepository.findById(id);
     setWorkflow(JSON.parse(data.data));
   };
 
@@ -133,24 +105,14 @@ function useWorkflow() {
     };
     [key: string]: any;
   }) => {
-    const db = new Dexie("FlowRequests");
-    db.version(1).stores({
-      workflows: "++id",
-    });
-    await db.workflows.update(data.workflowId, {
+    await workflowRepository.update(data.workflowId, {
       data: JSON.stringify(data),
     });
     toast.success("Workflow atualizado com sucesso");
   };
 
   const getCustomNodes = async () => {
-    const db = new Dexie("FlowRequests");
-    db.version(1).stores({
-      plugins: "++id",
-    });
-
-    const results = await db.plugins.toArray();
-    const packageUtil = new PackageUtil();
+    const results = await pluginRepository.getAll();
     const plugins = await packageUtil.load(results, {});
     return plugins.map((item) => item.getConfig());
   };
@@ -165,12 +127,7 @@ function useWorkflow() {
     };
     [key: string]: any;
   }) => {
-    const db = new Dexie("FlowRequests");
-    db.version(1).stores({
-      workflows: "++id",
-    });
-
-    const workflowCreatedId = await db.workflows.add({
+    const workflowCreatedId = await workflowRepository.insert({
       data: JSON.stringify(data),
     });
 
@@ -178,34 +135,14 @@ function useWorkflow() {
     return { id: workflowCreatedId };
   };
 
-  const fetchExecutions = async (workflowId: string) => {
-    setIsLoading(true);
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_API_URL}/workflows/${workflowId}/executions`
-      );
-      setExecutions(response.data);
-    } catch (error) {
-      toast.error("Failed to fetch executions");
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const getCustomNodesToUseAiAssistant = async () => {
-    const db = new Dexie("FlowRequests");
-    db.version(1).stores({
-      plugins: "++id",
-    });
-
-    const results = await db.plugins.toArray();
-    const packageUtil = new PackageUtil();
+  const getCustomPluginToUseAiAssistant = async () => {
+    const results = await pluginRepository.getAll();
     return packageUtil.load(results, {});
   };
 
   const handleUserChatMessage = async (content: string, nodes: Array<any>) => {
     try {
-      const customNodes = await getCustomNodesToUseAiAssistant();
+      const customNodes = await getCustomPluginToUseAiAssistant();
       const workflowAssistant = new WorkflowAssistantService(customNodes);
       const answer = await workflowAssistant.processUserMessage(nodes, content);
 
@@ -214,7 +151,7 @@ function useWorkflow() {
           result: answer,
         },
       };
-    } catch (error) {
+    } catch (error: any) {
       console.log(error);
       return {
         data: {
@@ -224,10 +161,87 @@ function useWorkflow() {
     }
   };
 
+  const exportFlows = async () => {
+    const workflowsResults = await workflowRepository.getAll();
+    const pluginsResults = await pluginRepository.getAll();
+    const exportData = {
+      plugins: pluginsResults.map((item: any) => ({
+        enabled: item.enabled,
+        libraryName: item.libraryName,
+        url: item.url,
+      })),
+      flows: workflowsResults.map((item: any) => ({
+        id: item.id.toString(),
+        data: item.data,
+      })),
+    };
+    const jsonString = JSON.stringify(exportData, null, 2);
+    const blob = new Blob([jsonString], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "flows.json";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
+  const importFlows = () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".json";
+    input.onchange = async (e) => {
+      const file = (e.target as HTMLInputElement).files?.[0];
+      if (!file) return;
+      const text = await file.text();
+      try {
+        const data = JSON.parse(text);
+        if (
+          !data.plugins ||
+          !Array.isArray(data.plugins) ||
+          !data.flows ||
+          !Array.isArray(data.flows)
+        )
+          throw new Error(
+            "Invalid format: expected { plugins: [...], flows: [...] }"
+          );
+
+        for (const plugin of data.plugins) {
+          if (
+            typeof plugin.enabled !== "boolean" ||
+            typeof plugin.libraryName !== "string" ||
+            typeof plugin.url !== "string"
+          ) {
+            throw new Error("Invalid plugin format");
+          }
+
+          await pluginRepository.insert({
+            enabled: plugin.enabled,
+            libraryName: plugin.libraryName,
+            url: plugin.url,
+          });
+        }
+
+        for (const flow of data.flows) {
+          if (typeof flow.id !== "string" || typeof flow.data !== "string") {
+            throw new Error("Invalid flow format");
+          }
+
+          await workflowRepository.insert({ data: flow.data });
+        }
+        getWorkflows();
+        toast.success("Flows and plugins imported successfully");
+      } catch (error: any) {
+        toast.error(error.message || "Failed to import");
+      }
+    };
+    input.click();
+  };
+
   return {
     workflows,
     getWorkflows,
-    triggerWorkflow,
     deleteWorkflow,
     getWorkflowById,
     workflow,
@@ -241,8 +255,9 @@ function useWorkflow() {
     createWorkflow,
     executions,
     isLoading,
-    fetchExecutions,
     handleUserChatMessage,
+    exportFlows,
+    importFlows,
   };
 }
 

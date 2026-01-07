@@ -39,17 +39,16 @@ export function AddCurlModal({ isOpen, onClose, onSave }: AddCurlModalProps) {
 
     try {
       const parsed = curlToJson(curl);
-      console.log("Parsed curl:", parsed);
-
-      // Convert to API node format
-      const nodeData = {
+      const nodeData: { [key: string]: any } = {
         type: "api",
         label: name,
         name: name.toLowerCase().replace(/\s+/g, "_"),
         endpoint: parsed.url,
         method: parsed.method || "GET",
+        // @ts-ignore
         headers: parsed.headers
-          ? Object.entries(parsed.headers).map(([key, value]) => ({
+          ? // @ts-ignore
+            Object.entries(parsed.headers).map(([key, value]) => ({
               key,
               value: String(value),
               expression: "raw",
@@ -57,7 +56,7 @@ export function AddCurlModal({ isOpen, onClose, onSave }: AddCurlModalProps) {
           : [],
       };
 
-      let body = [];
+      let body: Array<{ [key: string]: any }> = [];
       if (parsed.data) {
         if (typeof parsed.data === "object" && parsed.data !== null) {
           body = Object.entries(parsed.data).map(([key, value]) => ({

@@ -2,18 +2,13 @@
 
 import { memo, useEffect, useState } from "react";
 import {
-  Webhook,
   Globe,
   GitBranch,
-  Code2,
   ChevronLeft,
   ChevronRight,
-  PlusCircle,
   Repeat,
   Play,
-  Icon,
   X,
-  Sidebar,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,6 +76,16 @@ const FlowSidebar = memo(
     ]);
 
     const alreadyListed: { [key: string]: any } = {};
+    const isMatch = (nodeType: { [key: string]: any }) => {
+      if (!alreadyListed[nodeType.label]) {
+        alreadyListed[nodeType.label] = true;
+        return (
+          nodeType.label.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          nodeType.description.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      }
+      return false;
+    };
 
     useEffect(() => {
       setNodeTypes([...nodeTypes, ...httpRequestNodes, ...customNodes]);
@@ -151,18 +156,7 @@ const FlowSidebar = memo(
           >
             {nodeTypes
               .filter((nodeType) => {
-                if (!alreadyListed[nodeType.label]) {
-                  alreadyListed[nodeType.label] = true;
-                  return (
-                    nodeType.label
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase()) ||
-                    nodeType.description
-                      .toLowerCase()
-                      .includes(searchTerm.toLowerCase())
-                  );
-                }
-                return false;
+                return isMatch(nodeType);
               })
               .map((nodeType, index) => {
                 return (

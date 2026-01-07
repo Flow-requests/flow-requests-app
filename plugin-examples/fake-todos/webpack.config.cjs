@@ -18,7 +18,7 @@ module.exports = {
   output: {
     filename: "bundle.js",
     path: path.resolve(__dirname, "dist"),
-    library: "<CHANGE_VALE_HERE>",
+    library: "FakeTodos",
     libraryTarget: "umd",
   },
 };

@@ -12,11 +12,9 @@ import ReactFlow, {
   type Connection,
   type Edge,
   type NodeTypes,
-  useStoreApi,
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { ToastContainer, toast } from "react-toastify";
-import yaml from "js-yaml";
 
 import { StartNode } from "./nodes/start-node";
 import { ApiNode } from "./nodes/api-node";
@@ -26,14 +24,10 @@ import NodeConfigPanel from "./node-config-panel";
 import { Button } from "@/components/ui/button";
 import {
   GitBranch,
-  PlusCircle,
   Save,
-  Target,
-  Shield,
   Play,
   Upload,
   Globe,
-  Info,
   List,
   Settings,
 } from "lucide-react";
@@ -45,51 +39,25 @@ import { SettingsModal } from "./settings-modal";
 import { AddCurlModal } from "./add-curl-modal";
 import { FlowSidebar } from "./flow-sidebar";
 import { CustomNode } from "./nodes/custom-node";
-import ExecutionsDrawer from "./executions-drawer";
 import { useRouter } from "next/navigation";
 import useWorkflow from "@/hooks/useWorkflow";
-import NativeNodeType from "@/types/native-node-type.type";
 import Message from "@/types/message";
 import EnvData from "@/types/env-data";
-import VariableInput from "./variable-input";
 import TYPE_OPTION_MENU from "@/types/type-option-menu";
 import ChatComponent from "./chat-component";
+import * as OptionMenuUtil from "@/utils/option-menu";
+import { parse } from "@/utils/parse-insominia-file.util";
+import {
+  DEFAULT_VALUES,
+  INITIAL_NODES,
+  VALIDATION_BY_NODE_TYPES,
+} from "@/utils/nodes";
+import { parseBeforeRunOrSave } from "@/utils/workflow";
 
 const validationDataNodeTypes: {
   [key: string]: z.ZodObject<{ [key: string]: any }>;
-} = {
-  api: z.object({
-    endpoint: z.string().min(3),
-    method: z.enum(["GET", "POST", "DELETE", "PUT"]),
-  }),
-  start: z.object({}),
-  condition: z.object({
-    condition: z.object({
-      left: z.any(),
-      operator: z.string(),
-      right: z.any(),
-    }),
-  }),
-  code: z.object({
-    code: z.string(),
-  }),
-  loop: z.object({
-    source: z.string(),
-  }),
-};
-
-const initialNodes = [
-  {
-    id: "1",
-    type: "start",
-    position: { x: 250, y: 100 },
-    data: {
-      label: "Start",
-      name: "trigger_start_1",
-    },
-  },
-];
-
+} = VALIDATION_BY_NODE_TYPES;
+const initialNodes = INITIAL_NODES;
 const initialEdges: Array<{ [key: string]: any }> = [];
 
 interface FlowBuilderProps {
@@ -108,41 +76,8 @@ export default function FlowBuilder({
   const [workflowId, setWorkflowId] = useState(null);
   const [defaultDataByNodeTypes, setDefaultDataByNodeTypes] = useState<{
     [key: string]: any;
-  }>({
-    api: {
-      label: "API",
-      name: "",
-      endpoint: "https://webhook.site/18eb8dca-7fba-4512-bf61-21392e905b60",
-      method: "GET",
-      headers: null,
-      body: null,
-    },
-    start: {
-      label: "Start",
-      name: "",
-    },
-    condition: {
-      data: {
-        label: "Condition",
-        name: "",
-        condition: {
-          left: "1",
-          operator: "==",
-          right: "1",
-        },
-        trueLabel: "True",
-        falseLabel: "False",
-      },
-    },
-    code: {
-      code: "function node() { console.log('Hello World') }",
-    },
-    loop: {
-      label: "Loop",
-      name: "",
-      source: "",
-    },
-  });
+  }>(DEFAULT_VALUES);
+
   const [nodeTypes, setNodeTypes] = useState<NodeTypes>({
     start: StartNode,
     api: ApiNode,
@@ -164,225 +99,9 @@ export default function FlowBuilder({
   ]);
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
   const [isAddCurlModalOpen, setIsAddCurlModalOpen] = useState(false);
-  const [optionsMenu, setOptionsMenu] = useState<Array<string>>([
-    "{{this.state.faker.person.firstName()}}",
-    "{{this.state.faker.person.lastName()}}",
-    "{{this.state.faker.person.fullName()}}",
-    "{{this.state.faker.person.gender()}}",
-    "{{this.state.faker.person.sex()}}",
-    "{{this.state.faker.person.jobTitle()}}",
-    "{{this.state.faker.person.jobArea()}}",
-    "{{this.state.faker.person.jobDescriptor()}}",
-    "{{this.state.faker.person.jobType()}}",
-    "{{this.state.faker.person.prefix()}}",
-    "{{this.state.faker.person.suffix()}}",
-    "{{this.state.faker.person.middleName()}}",
-    "{{this.state.faker.person.bio()}}",
-    "{{this.state.faker.location.streetAddress()}}",
-    "{{this.state.faker.location.city()}}",
-    "{{this.state.faker.location.state()}}",
-    "{{this.state.faker.location.zipCode()}}",
-    "{{this.state.faker.location.country()}}",
-    "{{this.state.faker.location.countryCode()}}",
-    "{{this.state.faker.location.latitude()}}",
-    "{{this.state.faker.location.longitude()}}",
-    "{{this.state.faker.location.direction()}}",
-    "{{this.state.faker.location.ordinalDirection()}}",
-    "{{this.state.faker.location.nearbyGPSCoordinate()}}",
-    "{{this.state.faker.location.timeZone()}}",
-    "{{this.state.faker.location.streetName()}}",
-    "{{this.state.faker.location.streetSuffix()}}",
-    "{{this.state.faker.location.buildingNumber()}}",
-    "{{this.state.faker.location.secondaryAddress()}}",
-    "{{this.state.faker.internet.email()}}",
-    "{{this.state.faker.internet.userName()}}",
-    "{{this.state.faker.internet.password()}}",
-    "{{this.state.faker.internet.url()}}",
-    "{{this.state.faker.internet.domainName()}}",
-    "{{this.state.faker.internet.domainSuffix()}}",
-    "{{this.state.faker.internet.domainWord()}}",
-    "{{this.state.faker.internet.ip()}}",
-    "{{this.state.faker.internet.ipv6()}}",
-    "{{this.state.faker.internet.port()}}",
-    "{{this.state.faker.internet.userAgent()}}",
-    "{{this.state.faker.internet.httpMethod()}}",
-    "{{this.state.faker.internet.httpStatusCode()}}",
-    "{{this.state.faker.internet.color()}}",
-    "{{this.state.faker.internet.mac()}}",
-    "{{this.state.faker.internet.emoji()}}",
-    "{{this.state.faker.company.name()}}",
-    "{{this.state.faker.company.suffix()}}",
-    "{{this.state.faker.company.catchPhrase()}}",
-    "{{this.state.faker.company.bs()}}",
-    "{{this.state.faker.company.catchPhraseAdjective()}}",
-    "{{this.state.faker.company.catchPhraseDescriptor()}}",
-    "{{this.state.faker.company.catchPhraseNoun()}}",
-    "{{this.state.faker.company.bsAdjective()}}",
-    "{{this.state.faker.company.bsBuzz()}}",
-    "{{this.state.faker.company.bsNoun()}}",
-    "{{this.state.faker.finance.account()}}",
-    "{{this.state.faker.finance.accountName()}}",
-    "{{this.state.faker.finance.amount()}}",
-    "{{this.state.faker.finance.bic()}}",
-    "{{this.state.faker.finance.bitcoinAddress()}}",
-    "{{this.state.faker.finance.creditCardCVV()}}",
-    "{{this.state.faker.finance.creditCardIssuer()}}",
-    "{{this.state.faker.finance.creditCardNumber()}}",
-    "{{this.state.faker.finance.currencyCode()}}",
-    "{{this.state.faker.finance.currencyName()}}",
-    "{{this.state.faker.finance.currencySymbol()}}",
-    "{{this.state.faker.finance.ethereumAddress()}}",
-    "{{this.state.faker.finance.iban()}}",
-    "{{this.state.faker.finance.litecoinAddress()}}",
-    "{{this.state.faker.finance.mask()}}",
-    "{{this.state.faker.finance.pin()}}",
-    "{{this.state.faker.finance.routingNumber()}}",
-    "{{this.state.faker.finance.transactionDescription()}}",
-    "{{this.state.faker.finance.transactionType()}}",
-    "{{this.state.faker.date.past()}}",
-    "{{this.state.faker.date.future()}}",
-    "{{this.state.faker.date.between()}}",
-    "{{this.state.faker.date.recent()}}",
-    "{{this.state.faker.date.soon()}}",
-    "{{this.state.faker.date.birthdate()}}",
-    "{{this.state.faker.date.month()}}",
-    "{{this.state.faker.date.weekday()}}",
-    "{{this.state.faker.lorem.word()}}",
-    "{{this.state.faker.lorem.words()}}",
-    "{{this.state.faker.lorem.sentence()}}",
-    "{{this.state.faker.lorem.sentences()}}",
-    "{{this.state.faker.lorem.paragraph()}}",
-    "{{this.state.faker.lorem.paragraphs()}}",
-    "{{this.state.faker.lorem.text()}}",
-    "{{this.state.faker.lorem.lines()}}",
-    "{{this.state.faker.lorem.slug()}}",
-    "{{this.state.faker.phone.number()}}",
-    "{{this.state.faker.phone.imei()}}",
-    "{{this.state.faker.image.avatar()}}",
-    "{{this.state.faker.image.url()}}",
-    "{{this.state.faker.image.urlLoremFlickr()}}",
-    "{{this.state.faker.image.urlPicsumPhotos()}}",
-    "{{this.state.faker.image.urlPlaceholder()}}",
-    "{{this.state.faker.image.dataUri()}}",
-    "{{this.state.faker.animal.type()}}",
-    "{{this.state.faker.animal.dog()}}",
-    "{{this.state.faker.animal.cat()}}",
-    "{{this.state.faker.animal.snake()}}",
-    "{{this.state.faker.animal.bear()}}",
-    "{{this.state.faker.animal.lion()}}",
-    "{{this.state.faker.animal.cetacean()}}",
-    "{{this.state.faker.animal.horse()}}",
-    "{{this.state.faker.animal.bird()}}",
-    "{{this.state.faker.animal.cow()}}",
-    "{{this.state.faker.animal.fish()}}",
-    "{{this.state.faker.animal.crocodilia()}}",
-    "{{this.state.faker.animal.insect()}}",
-    "{{this.state.faker.animal.rabbit()}}",
-    "{{this.state.faker.vehicle.vehicle()}}",
-    "{{this.state.faker.vehicle.manufacturer()}}",
-    "{{this.state.faker.vehicle.model()}}",
-    "{{this.state.faker.vehicle.type()}}",
-    "{{this.state.faker.vehicle.fuel()}}",
-    "{{this.state.faker.vehicle.vin()}}",
-    "{{this.state.faker.vehicle.color()}}",
-    "{{this.state.faker.vehicle.vrm()}}",
-    "{{this.state.faker.commerce.department()}}",
-    "{{this.state.faker.commerce.productName()}}",
-    "{{this.state.faker.commerce.price()}}",
-    "{{this.state.faker.commerce.productAdjective()}}",
-    "{{this.state.faker.commerce.productMaterial()}}",
-    "{{this.state.faker.commerce.product()}}",
-    "{{this.state.faker.database.column()}}",
-    "{{this.state.faker.database.type()}}",
-    "{{this.state.faker.database.collation()}}",
-    "{{this.state.faker.database.engine()}}",
-    "{{this.state.faker.music.genre()}}",
-    "{{this.state.faker.music.songName()}}",
-    "{{this.state.faker.system.fileName()}}",
-    "{{this.state.faker.system.commonFileName()}}",
-    "{{this.state.faker.system.mimeType()}}",
-    "{{this.state.faker.system.commonFileType()}}",
-    "{{this.state.faker.system.commonFileExt()}}",
-    "{{this.state.faker.system.fileType()}}",
-    "{{this.state.faker.system.fileExt()}}",
-    "{{this.state.faker.system.directoryPath()}}",
-    "{{this.state.faker.system.filePath()}}",
-    "{{this.state.faker.system.semver()}}",
-    "{{this.state.faker.science.chemicalElement()}}",
-    "{{this.state.faker.science.unit()}}",
-    "{{this.state.faker.airline.airplane()}}",
-    "{{this.state.faker.airline.airport()}}",
-    "{{this.state.faker.airline.airline()}}",
-    "{{this.state.faker.airline.aircraftType()}}",
-    "{{this.state.faker.airline.flightNumber()}}",
-    "{{this.state.faker.airline.seat()}}",
-    "{{this.state.faker.airline.recordLocator()}}",
-    "{{this.state.faker.color.human()}}",
-    "{{this.state.faker.color.space()}}",
-    "{{this.state.faker.color.cssSupportedFunction()}}",
-    "{{this.state.faker.color.cssSupportedSpace()}}",
-    "{{this.state.faker.color.rgb()}}",
-    "{{this.state.faker.color.hsl()}}",
-    "{{this.state.faker.color.hwb()}}",
-    "{{this.state.faker.color.cmyk()}}",
-    "{{this.state.faker.color.lab()}}",
-    "{{this.state.faker.color.lch()}}",
-    "{{this.state.faker.color.colorByCSSColorSpace()}}",
-    "{{this.state.faker.git.branch()}}",
-    "{{this.state.faker.git.commitEntry()}}",
-    "{{this.state.faker.git.commitMessage()}}",
-    "{{this.state.faker.git.commitSha()}}",
-    "{{this.state.faker.git.shortSha()}}",
-    "{{this.state.faker.hacker.abbreviation()}}",
-    "{{this.state.faker.hacker.adjective()}}",
-    "{{this.state.faker.hacker.noun()}}",
-    "{{this.state.faker.hacker.verb()}}",
-    "{{this.state.faker.hacker.ingverb()}}",
-    "{{this.state.faker.hacker.phrase()}}",
-    "{{this.state.faker.helpers.arrayElement()}}",
-    "{{this.state.faker.helpers.arrayElements()}}",
-    "{{this.state.faker.helpers.shuffle()}}",
-    "{{this.state.faker.helpers.unique()}}",
-    "{{this.state.faker.helpers.mustache()}}",
-    "{{this.state.faker.helpers.createCard()}}",
-    "{{this.state.faker.helpers.contextualCard()}}",
-    "{{this.state.faker.helpers.userCard()}}",
-    "{{this.state.faker.helpers.createTransaction()}}",
-    "{{this.state.faker.helpers.rangeToNumber()}}",
-    "{{this.state.faker.helpers.regexpStyleStringParse()}}",
-    "{{this.state.faker.helpers.fromRegExp()}}",
-    "{{this.state.faker.helpers.replaceSymbolWithNumber()}}",
-    "{{this.state.faker.helpers.replaceSymbols()}}",
-    "{{this.state.faker.helpers.slugify()}}",
-    "{{this.state.faker.helpers.enumValue()}}",
-    "{{this.state.faker.helpers.objectKey()}}",
-    "{{this.state.faker.helpers.objectValue()}}",
-    "{{this.state.faker.helpers.weightedArrayElement()}}",
-    "{{this.state.faker.datatype.boolean()}}",
-    "{{this.state.faker.datatype.number()}}",
-    "{{this.state.faker.datatype.float()}}",
-    "{{this.state.faker.datatype.datetime()}}",
-    "{{this.state.faker.datatype.string()}}",
-    "{{this.state.faker.datatype.uuid()}}",
-    "{{this.state.faker.datatype.json()}}",
-    "{{this.state.faker.datatype.hexadecimal()}}",
-    "{{this.state.faker.random.word()}}",
-    "{{this.state.faker.random.words()}}",
-    "{{this.state.faker.random.locale()}}",
-    "{{this.state.faker.string.alpha()}}",
-    "{{this.state.faker.string.alphanumeric()}}",
-    "{{this.state.faker.string.binary()}}",
-    "{{this.state.faker.string.hexadecimal()}}",
-    "{{this.state.faker.string.numeric()}}",
-    "{{this.state.faker.string.octal()}}",
-    "{{this.state.faker.string.symbol()}}",
-    "{{this.state.faker.string.fromCharacters()}}",
-    "{{this.state.faker.string.uuid()}}",
-    "{{this.state.faker.string.nanoid()}}",
-    "{{this.state.faker.number.int()}}",
-    "{{this.state.faker.number.float()}}",
-    "{{this.state.faker.number.bigInt()}}",
-  ]);
+  const [optionsMenu, setOptionsMenu] = useState<Array<string>>(
+    OptionMenuUtil.DEFAULT
+  );
 
   const {
     updateWorkflow,
@@ -443,69 +162,7 @@ export default function FlowBuilder({
     reader.onload = (e) => {
       const content = e.target?.result as string;
       try {
-        const doc = yaml.load(content) as any;
-        let items: any[] = [];
-        for (const item of doc.collection) {
-          if (item.children) {
-            for (const child of item.children) {
-              items.push({
-                description: `${item.name} - ${child.name}`,
-                name: `${item.name
-                  .toLowerCase()
-                  .replace(/\s|-/g, "_")}_${child.name
-                  .toLowerCase()
-                  .replace(/\s|-/g, "_")}`,
-                url: child.url,
-                method: child.method,
-                body: Object.keys(child.body || {}).map((key) => ({
-                  key: key,
-                  value: child.body[key],
-                  expression: "raw",
-                })),
-                headers: child.headers
-                  ? child.headers.map((h: any) => ({
-                      key: h.name,
-                      value: h.value,
-                      expression: "raw",
-                    }))
-                  : [],
-              });
-            }
-          } else {
-            let requestBody: { [key: string]: any } = {};
-            Object.keys(item.body || {}).forEach((key) => {
-              let value = item.body[key];
-              try {
-                value = JSON.parse(item.body[key]);
-                requestBody = {
-                  ...requestBody,
-                  ...value,
-                };
-              } catch (error) {
-                requestBody[key] = item.body[key];
-              }
-            });
-
-            console.log(requestBody);
-            items.push({
-              description: `${item.name}`,
-              name: item.name.toLowerCase().replace(/\s|-/g, "_"),
-              url: item.url,
-              method: item.method,
-              body: Object.keys(requestBody || {}).map((key) => ({
-                key: key,
-                value: requestBody[key],
-              })),
-              headers: item.headers
-                ? item.headers.map((h: any) => ({
-                    key: h.name,
-                    value: h.value,
-                  }))
-                : [],
-            });
-          }
-        }
-
+        let items: any[] = parse(content);
         items = items.map((item) => {
           return {
             type: "api",
@@ -523,7 +180,6 @@ export default function FlowBuilder({
           };
         });
 
-        console.log(items);
         setHttpRequestNodes([...items]);
         toast.success(`Uploaded ${items.length} API requests`);
       } catch (err) {
@@ -620,8 +276,6 @@ export default function FlowBuilder({
           },
         ]);
       }
-
-      console.log(error);
     }
   };
 
@@ -745,150 +399,6 @@ export default function FlowBuilder({
     [selectedNode, setNodes, setEdges]
   );
 
-  const parseToSave = (
-    item: { [key: string]: any },
-    mapNodesById: { [key: string]: any },
-    ignoreNodeById: { [key: string]: any },
-    index: number
-  ) => {
-    if (item.type == NativeNodeType.start) {
-      return {
-        type: item.type,
-        name: item.data.name,
-        input: {},
-        output: {},
-      };
-    } else if (item.type == NativeNodeType.code) {
-      return {
-        type: item.type,
-        name: item.data.name,
-        setting: {
-          code: btoa(unescape(encodeURIComponent(item.data.code))),
-          params: item.data.params,
-        },
-        input: {},
-        output: {},
-      };
-    } else if (item.type == NativeNodeType.api) {
-      return {
-        type: item.type,
-        name: item.data.name,
-        setting: {
-          method: item.data.method,
-          url: item.data.endpoint,
-          headers: item.data.headers,
-          body: item.data.body,
-        },
-        input: {},
-        output: {},
-      };
-    } else if (item.type == NativeNodeType.condition) {
-      // @ts-ignore
-      const left = item?.data?.condition?.left;
-      const leftType = left.startsWith("this.state") ? "expression" : "raw";
-      // @ts-ignore
-      const right = item?.data?.condition?.right;
-      const rightType = right.startsWith("this.state") ? "expression" : "raw";
-
-      // @ts-ignore
-      const operator = item?.data?.condition?.operator;
-
-      const itemToAdd = {
-        type: item.type,
-        name: item.data.name,
-        setting: {
-          condition: {
-            left: {
-              type: leftType,
-              value: left,
-            },
-            right: {
-              type: rightType,
-              value: right,
-            },
-            operator: operator,
-          },
-          success: [],
-          fail: [],
-        },
-        input: {},
-        output: {},
-      };
-
-      // @ts-ignore
-      itemToAdd.setting.success = edges
-        .filter((option: { [key: string]: any }) => {
-          return (
-            // @ts-ignore
-            option.parentId == item.id && option.pathCondition == "true"
-          );
-        })
-        .map((option: { [key: string]: any }) => {
-          const node = mapNodesById[option.target];
-          ignoreNodeById[node.id] = true;
-          return parseToSave(node, mapNodesById, ignoreNodeById, index);
-        });
-
-      // @ts-ignore
-      itemToAdd.setting.fail = edges
-        .filter((option: { [key: string]: any }) => {
-          return (
-            // @ts-ignore
-            option.parentId == item.id && option.pathCondition == "false"
-          );
-        })
-        .map((option: { [key: string]: any }) => {
-          const node = mapNodesById[option.target];
-          ignoreNodeById[node.id] = true;
-          return parseToSave(node, mapNodesById, ignoreNodeById, index);
-        });
-
-      return itemToAdd;
-    } else if (item.type == NativeNodeType.loop) {
-      const itemToAdd = {
-        type: item.type,
-        name: item.data.name,
-        setting: {
-          source: item.data.source || [],
-          nodes: [],
-        },
-        input: {},
-        output: {},
-      };
-
-      // @ts-ignore
-      itemToAdd.setting.nodes = edges
-        .filter((option: { [key: string]: any }) => {
-          return (
-            // @ts-ignore
-            option.parentId == item.id && option.pathCondition == "loop"
-          );
-        })
-        .map((option: { [key: string]: any }, index: number) => {
-          const node = mapNodesById[option.target];
-          ignoreNodeById[node.id] = true;
-          return parseToSave(node, mapNodesById, ignoreNodeById, index);
-        });
-
-      return itemToAdd;
-    }
-
-    const itemData = item.data;
-    delete itemData.isCustomNode;
-    delete itemData.name;
-
-    const typeLabel = item.type.charAt(0).toUpperCase() + item.type.slice(1);
-    item.data.name = `trigger_${typeLabel}_${index + 1}`.toLowerCase();
-
-    return {
-      type: item.type,
-      name: item.data.name,
-      setting: itemData,
-      input: {},
-      output: {},
-    };
-  };
-
   const saveWorkflow = async (isTest: boolean = false) => {
     if (nodes.length == 0) {
       toast.error("You need at least one node to start the Worflow");
@@ -910,13 +420,13 @@ export default function FlowBuilder({
       const isCustomNode = !validationDataNodeTypes[item.type];
       if (isCustomNode) {
         const schema = {};
-
-        // @ts-ignore
-        item.data.properties
+        const config: { [key: string]: any } = item.data;
+        config.properties
           .filter((property: any) => property.required)
           .forEach((property: { [key: string]: any }) => {
             if (property.name) {
-              if (property.required) {
+              const isRequired = property.required;
+              if (isRequired) {
                 // @ts-ignore
                 schema[property.name] = z.string();
               } else {
@@ -959,7 +469,7 @@ export default function FlowBuilder({
       }
 
       workflow.nodes.push(
-        parseToSave(item, mapNodesById, ignoreNodeById, index)
+        parseBeforeRunOrSave(item, mapNodesById, ignoreNodeById, index)
       );
     }
 
@@ -1086,7 +596,7 @@ export default function FlowBuilder({
             }
           );
 
-        let nodesName: Array<string> =
+        const nodesName: Array<string> =
           workflowToEdit.originalWorkflow.nodes.map(
             (item: { [key: string]: any }) => item?.data?.name
           );

@@ -2,7 +2,7 @@
   "name": "template",
   "version": "1.0.0",
   "description": "Template use to create your own plugins",
-  "main": "dist/index.js",
+  "main": "dist/bundle.js",
   "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {

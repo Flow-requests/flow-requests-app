@@ -1,8 +1,8 @@
 {
-  "name": "template",
-  "version": "1.0.0",
-  "description": "Template use to create your own plugins",
-  "main": "dist/index.js",
+  "name": "fake-todos-plugin",
+  "version": "1.0.3",
+  "description": "Fake todos plugins",
+  "main": "dist/bundle.js",
   "types": "dist/index.d.ts",
   "type": "module",
   "scripts": {

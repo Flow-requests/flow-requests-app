@@ -9,12 +9,14 @@ class PackageUtil {
     const customNode: Array<NodeBase> = [];
     for (const customPackage of customPackages) {
       const instance = eval(`${customPackage.libraryName}`);
-      customNode.push(new instance.default(state));
+      if (instance.default) {
+        customNode.push(new instance.default(state));
+      } else {
+        customNode.push(new instance(state));
+      }
     }
     return customNode;
   }
-
-  async loadOne(customPackage: string, state: any = {}): Promise<NodeBase> {}
 
   async install(
     customPackages: Array<{ url: string; libraryName: string }>

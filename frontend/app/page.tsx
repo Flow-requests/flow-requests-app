@@ -1,7 +1,5 @@
 "use client";
-import FlowBuilder from "@/components/flow-builder";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import {
   Card,
   CardContent,
@@ -24,14 +22,12 @@ import {
 } from "lucide-react";
 
 export default function Home() {
-  const [flowName, setFlowName] = useState(`Flow ${new Date().getTime()}`);
-
   return (
     <main className="flex min-h-screen flex-col">
       <div className="flex h-16 items-center border-b px-4">
         <h1 className="text-xl font-bold">Flow Requests</h1>
         <Link className="ml-auto" href="/workflows">
-          <Button>Go to Workflows</Button>
+          <Button>Go to Flows</Button>
         </Link>
       </div>
       <div className="flex-1 p-6">

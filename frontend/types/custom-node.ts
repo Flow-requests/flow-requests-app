@@ -1,7 +1,8 @@
 interface CustomPackage {
   id: string;
-  package_name: string;
+  url: string;
+  libraryName: string;
   enabled: boolean;
 }
 
-export default CustomPackage
+export default CustomPackage;

@@ -5,10 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { ToastContainer } from "react-toastify";
 import Link from "next/link";
-import useCustomNode from "@/hooks/useCustomNode";
+import useCustomNode from "@/hooks/useCustomPlugin";
 
 export default function InstallCustomPackages() {
   const {
@@ -18,7 +17,7 @@ export default function InstallCustomPackages() {
     loading,
     fetchPackages,
     installPackage,
-    togglePackage,
+    removePackage,
     libraryName,
     SetlibraryName,
   } = useCustomNode();
@@ -113,15 +112,12 @@ export default function InstallCustomPackages() {
                       </div>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <Badge variant={pkg.enabled ? "default" : "secondary"}>
-                        {pkg.enabled ? "Enabled" : "Disabled"}
-                      </Badge>
                       <Button
-                        variant="outline"
+                        variant="destructive"
                         size="sm"
-                        onClick={() => togglePackage(pkg.id, !pkg.enabled)}
+                        onClick={() => removePackage(pkg.id, pkg.libraryName)}
                       >
-                        {pkg.enabled ? "Disable" : "Enable"}
+                        Remove
                       </Button>
                     </div>
                   </div>

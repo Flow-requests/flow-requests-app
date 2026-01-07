@@ -1,9 +1,10 @@
 import { useState } from "react";
-import axios from "axios";
 import { toast } from "react-toastify";
 import CustomPackage from "../types/custom-node";
 import PackageUtil from "@/utils/package.util";
-import Dexie from "dexie";
+import * as pluginRepository from "@/repositories/plugins.repository";
+
+const packageUtil = new PackageUtil();
 
 function useCustomNode() {
   const [packages, setPackages] = useState<CustomPackage[]>([]);
@@ -14,12 +15,7 @@ function useCustomNode() {
   const fetchPackages = async () => {
     setLoading(true);
     try {
-      const db = new Dexie("FlowRequests");
-      db.version(1).stores({
-        plugins: "++id",
-      });
-
-      const results = await db.plugins.toArray();
+      const results = await pluginRepository.getAll();
       setPackages(results);
     } catch (error) {
       toast.error("Failed to fetch packages");
@@ -36,7 +32,6 @@ function useCustomNode() {
 
     setLoading(true);
     try {
-      const packageUtil = new PackageUtil();
       await packageUtil.install([
         {
           url: packageName,
@@ -44,16 +39,11 @@ function useCustomNode() {
         },
       ]);
 
-      const db = new Dexie("FlowRequests");
-      db.version(1).stores({
-        plugins: "++id",
-      });
-
-      await db.plugins.add({
+      await pluginRepository.insert({
         url: packageName,
         libraryName: libraryName,
         enabled: true,
-      });
+      } as CustomPackage);
       toast.success("Plugin installed successfully");
       setPackageName("");
       fetchPackages();
@@ -64,20 +54,18 @@ function useCustomNode() {
     }
   };
 
-  const togglePackage = async (id: string, enabled: boolean) => {
+  const removePackage = async (id: string, libraryName: string) => {
     try {
-      const db = new Dexie("FlowRequests");
-      db.version(1).stores({
-        plugins: "++id",
-      });
+      await pluginRepository.removeById(id);
+      const script = document.getElementById(libraryName);
+      if (script) {
+        script.remove();
+      }
 
-      await db.plugins.update(id, {
-        enabled: enabled,
-      });
-      toast.success(`Plugin ${enabled ? "disabled" : "enabled"} successfully`);
+      toast.success("Plugin removed successfully");
       fetchPackages();
     } catch (error) {
-      toast.error("Failed to toggle package");
+      toast.error("Failed to remove package");
     }
   };
 
@@ -88,7 +76,7 @@ function useCustomNode() {
     packages,
     loading,
     fetchPackages,
-    togglePackage,
+    removePackage,
     libraryName,
     SetlibraryName,
   };
