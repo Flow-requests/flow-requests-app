@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Trash2 } from "lucide-react";
+import { Info, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 interface SettingsData {
   id: string;
@@ -75,6 +76,22 @@ export function SettingsModal({
             Configure application settings here.
           </DialogDescription>
         </DialogHeader>
+
+        <Alert>
+          <Info className="h-4 w-4" />
+          <AlertTitle>How to Generate OpenRouter Token</AlertTitle>
+          <AlertDescription>
+            You can generate the 'openRouterToken' key by creating an account on{" "}
+            <a
+              href="https://openrouter.ai/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              https://openrouter.ai/
+            </a>
+            , accessing the API keys option, and clicking 'Create api key'.
+          </AlertDescription>
+        </Alert>
 
         <ScrollArea className="flex-1 overflow-auto pr-4 -mr-4 max-h-[50vh]">
           <div className="space-y-6 py-2">
