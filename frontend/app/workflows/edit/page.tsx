@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useEffect } from "react";
 import useWorkflow from "@/hooks/useWorkflow";
 
-export default async function Home() {
+export default function Home() {
   const { workflow, getWorkflowById } = useWorkflow();
 
   useEffect(() => {
@@ -19,7 +19,7 @@ export default async function Home() {
     <main className="flex min-h-screen flex-col">
       <div className="flex h-16 items-center border-b px-4">
         <h1 className="text-xl font-bold">Flow Request Builder</h1>
-        <Link className="ml-auto" href="/workflows">
+        <Link className="ml-auto" href="/workflows/list">
           <Button>Go to Flows</Button>
         </Link>
       </div>

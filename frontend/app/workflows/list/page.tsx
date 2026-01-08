@@ -119,7 +119,7 @@ Output Constraint: By asking for "only raw JSON," you ensure the response is cle
                         Delete
                       </DropdownMenuItem>
                       <DropdownMenuItem>
-                        <Link href={`/workflows/${workflow.id}/edit`}>
+                        <Link href={`/workflows/edit?id=${workflow.id}`}>
                           <span>Edit</span>
                         </Link>
                       </DropdownMenuItem>

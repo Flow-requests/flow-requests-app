@@ -469,7 +469,7 @@ export default function FlowBuilder({
       }
 
       workflow.nodes.push(
-        parseBeforeRunOrSave(item, mapNodesById, ignoreNodeById, index)
+        parseBeforeRunOrSave(item, mapNodesById, ignoreNodeById, index, edges)
       );
     }
 
@@ -514,7 +514,7 @@ export default function FlowBuilder({
       });
 
       setTimeout(() => {
-        router.push(`/workflows/${workflowCreated.id}/edit`);
+        router.push(`/workflows/edit?id=${workflowCreated.id}`);
       }, 1000);
     }
   };

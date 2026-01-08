@@ -21,7 +21,7 @@ export default function Home() {
             aria-label="Flow name"
           />
         </div>
-        <Link className="ml-auto" href="/workflows">
+        <Link className="ml-auto" href="/workflows/list">
           <Button>Go to Flows</Button>
         </Link>
       </div>

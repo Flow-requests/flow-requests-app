@@ -4,7 +4,8 @@ function parseBeforeRunOrSave(
   item: { [key: string]: any },
   mapNodesById: { [key: string]: any },
   ignoreNodeById: { [key: string]: any },
-  index: number
+  index: number,
+  edges: Array<{ [key: string]: any }>
 ) {
   if (item.type == NativeNodeType.start) {
     return {
@@ -81,7 +82,13 @@ function parseBeforeRunOrSave(
       .map((option: { [key: string]: any }) => {
         const node = mapNodesById[option.target];
         ignoreNodeById[node.id] = true;
-        return parseBeforeRunOrSave(node, mapNodesById, ignoreNodeById, index);
+        return parseBeforeRunOrSave(
+          node,
+          mapNodesById,
+          ignoreNodeById,
+          index,
+          edges
+        );
       });
 
     // @ts-ignore
@@ -95,7 +102,13 @@ function parseBeforeRunOrSave(
       .map((option: { [key: string]: any }) => {
         const node = mapNodesById[option.target];
         ignoreNodeById[node.id] = true;
-        return parseBeforeRunOrSave(node, mapNodesById, ignoreNodeById, index);
+        return parseBeforeRunOrSave(
+          node,
+          mapNodesById,
+          ignoreNodeById,
+          index,
+          edges
+        );
       });
 
     return itemToAdd;
@@ -122,7 +135,13 @@ function parseBeforeRunOrSave(
       .map((option: { [key: string]: any }, index: number) => {
         const node = mapNodesById[option.target];
         ignoreNodeById[node.id] = true;
-        return parseBeforeRunOrSave(node, mapNodesById, ignoreNodeById, index);
+        return parseBeforeRunOrSave(
+          node,
+          mapNodesById,
+          ignoreNodeById,
+          index,
+          edges
+        );
       });
 
     return itemToAdd;
