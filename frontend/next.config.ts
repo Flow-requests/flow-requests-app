@@ -21,6 +21,12 @@ const nextConfig: NextConfig = {
       },
     },
   },
+  output: "export",
+  reactStrictMode: true,
+
+  // If your site will be served from a subpath (not root domain):
+  basePath: "/Flow-requests.github.io",
+  assetPrefix: "/Flow-requests.github.io/",
 };
 
 export default nextConfig;

@@ -1,15 +1,18 @@
 "use client";
+
 import FlowBuilder from "@/components/flow-builder";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useEffect } from "react";
 import useWorkflow from "@/hooks/useWorkflow";
 
-export default function Home({ params }) {
+export default async function Home() {
   const { workflow, getWorkflowById } = useWorkflow();
 
   useEffect(() => {
-    getWorkflowById(params.id);
+    const urlParams = new URLSearchParams(window.location.search);
+    const id = urlParams.get("id");
+    getWorkflowById(id);
   }, []);
 
   return (

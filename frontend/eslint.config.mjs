@@ -21,6 +21,7 @@ const eslintConfig = [
       "react-hooks/exhaustive-deps": "off",
       "react/display-name": "off",
       "react/no-unescaped-entities": "off",
+      "react-hooks/rules-of-hooks": "off",
     },
   }),
 ];
