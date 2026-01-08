@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Trash, PlusCircle } from "lucide-react";
+import { Trash, PlusCircle, AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dialog";
 import NativeNodeType from "@/types/native-node-type.type";
 import VariableInput from "./variable-input";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 interface NodeConfigPanelProps {
   node: { [key: string]: any };
@@ -116,6 +117,29 @@ export default function NodeConfigPanel({
 
   const renderApiConfig = () => (
     <>
+      <Alert variant="destructive">
+        <AlertTriangle className="h-4 w-4" />
+        <AlertTitle>CORS Bypass</AlertTitle>
+        <AlertDescription>
+          To bypass the CORS problem, use the script from{" "}
+          <a
+            href="https://gist.github.com/tiago123456789/1818973dd1fa794206d5ba0a835fa5c0"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            https://gist.github.com/tiago123456789/1818973dd1fa794206d5ba0a835fa5c0
+          </a>
+          . Create an account on{" "}
+          <a
+            href="https://www.val.town/"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            https://www.val.town/
+          </a>
+          , create a Val, select HTTP, and copy the script from the Gist link.
+        </AlertDescription>
+      </Alert>
       <div className="space-y-2">
         <Label htmlFor="endpoint">API Endpoint</Label>
         <VariableInput
@@ -484,7 +508,7 @@ export default function NodeConfigPanel({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-scroll ">
+      <DialogContent className="min-w-4xl max-h-[80vh] overflow-y-scroll ">
         <DialogHeader>
           <DialogTitle>
             Configure {node.type.charAt(0).toUpperCase() + node.type.slice(1)}
