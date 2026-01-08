@@ -35,7 +35,7 @@ export default function InstallCustomPackages() {
     <div className="container mx-auto py-8 px-4">
       <ToastContainer />
       <div className="mb-8">
-        <Link href="/workflows">
+        <Link href="/workflows/list">
           <Button variant="outline" className="mb-4">
             ← Back to Flows
           </Button>

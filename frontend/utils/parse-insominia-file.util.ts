@@ -1,30 +1,36 @@
 import yaml from "js-yaml";
 
-function parseItemHasChildren(
-  item: { [key: string]: any },
-  child: { [key: string]: any }
-) {
-  return {
-    description: `${item.name} - ${child.name}`,
-    name: `${item.name.toLowerCase().replace(/\s|-/g, "_")}_${child.name
-      .toLowerCase()
-      .replace(/\s|-/g, "_")}`,
-    url: child.url,
-    method: child.method,
-    body: Object.keys(child.body || {}).map((key) => ({
-      key: key,
-      value: child.body[key],
-      expression: "raw",
-    })),
-    headers: child.headers
-      ? child.headers.map((h: any) => ({
-          key: h.name,
-          value: h.value,
-          expression: "raw",
-        }))
-      : [],
-  };
-}
+let itemsCollection = [];
+
+const getName = (parent, name) => {
+  if (parent.trim().length > 0) {
+    name = `${parent}_${name}`.replace(/\s|-+/g, "_");
+  }
+  return name.replace(/\s+/g, "_");
+};
+
+const replaceInsominiaEnvToEnvData = (value: string) => {
+  const regex = /{{\s*_\.(.*?)\s*}}|{{\s*(.*?)\s*}}/g;
+  const replacement = "{{this.state.envData.$1$2}}";
+  return String(value).replace(regex, replacement);
+};
+
+const convert = (parent = "", items) => {
+  if (items.length == 0) {
+    return;
+  }
+
+  for (const item of items) {
+    if (item.children) {
+      convert(getName(parent, item.name), item.children);
+    } else {
+      item.name = getName(parent, item.name).toLocaleLowerCase();
+      itemsCollection.push(parseItemWithoutChildren(item));
+    }
+  }
+
+  return;
+};
 
 function parseItemWithoutChildren(item: { [key: string]: any }) {
   let requestBody: { [key: string]: any } = {};
@@ -44,16 +50,16 @@ function parseItemWithoutChildren(item: { [key: string]: any }) {
   return {
     description: `${item.name}`,
     name: item.name.toLowerCase().replace(/\s|-/g, "_"),
-    url: item.url,
+    url: replaceInsominiaEnvToEnvData(item.url),
     method: item.method,
     body: Object.keys(requestBody || {}).map((key) => ({
       key: key,
-      value: requestBody[key],
+      value: replaceInsominiaEnvToEnvData(requestBody[key]),
     })),
     headers: item.headers
       ? item.headers.map((h: any) => ({
           key: h.name,
-          value: h.value,
+          value: replaceInsominiaEnvToEnvData(h.value),
         }))
       : [],
   };
@@ -61,19 +67,10 @@ function parseItemWithoutChildren(item: { [key: string]: any }) {
 
 function parse(content: string) {
   const doc = yaml.load(content) as any;
-  let items: any[] = [];
+  itemsCollection = [];
 
-  for (const item of doc.collection) {
-    if (item.children) {
-      for (const child of item.children) {
-        items.push(parseItemHasChildren(item, child));
-      }
-    } else {
-      items.push(parseItemWithoutChildren(item));
-    }
-  }
-
-  return items;
+  convert("", doc.collection);
+  return itemsCollection;
 }
 
 export { parse };
