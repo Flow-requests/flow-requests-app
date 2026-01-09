@@ -47,7 +47,7 @@ export default function NodeConfigPanel({
       left: "",
       operator: "",
       right: "",
-    }
+    },
   );
 
   const mapNativeNode: { [key: string]: boolean } = {
@@ -129,7 +129,7 @@ export default function NodeConfigPanel({
           >
             https://gist.github.com/tiago123456789/1818973dd1fa794206d5ba0a835fa5c0
           </a>
-          . Create an account on{" "}
+          , create an account on{" "}
           <a
             href="https://www.val.town/"
             target="_blank"
@@ -137,7 +137,7 @@ export default function NodeConfigPanel({
           >
             https://www.val.town/
           </a>
-          , create a Val, select HTTP, and copy the script from the Gist link.
+          , create a Val, select HTTP and copy the script from the Gist link.
         </AlertDescription>
       </Alert>
       <div className="space-y-2">
@@ -396,7 +396,7 @@ export default function NodeConfigPanel({
               const resultVerifications = property.conditionShow.filter(
                 (condition: any) => {
                   return config[condition.keyCheck] == condition.valueExpected;
-                }
+                },
               );
 
               if (resultVerifications.length != property.conditionShow.length) {
@@ -532,7 +532,7 @@ export default function NodeConfigPanel({
               onChange={(e) =>
                 handleChange(
                   "name",
-                  e.target.value.replace(/ /g, "_").toLowerCase()
+                  e.target.value.replace(/ /g, "_").toLowerCase(),
                 )
               }
               placeholder="Enter a descriptive name for this step"
