@@ -70,7 +70,7 @@ function useWorkflow() {
           nodes: data.nodes || [],
           envData: data.envData,
         },
-        {}
+        {},
       );
 
       const states = workflowEngine.getState();
@@ -201,7 +201,7 @@ function useWorkflow() {
           !Array.isArray(data.flows)
         )
           throw new Error(
-            "Invalid format: expected { plugins: [...], flows: [...] }"
+            "Invalid format: expected { plugins: [...], flows: [...] }",
           );
 
         for (const plugin of data.plugins) {
@@ -221,15 +221,16 @@ function useWorkflow() {
         }
 
         for (const flow of data.flows) {
-          if (typeof flow.id !== "string" || typeof flow.data !== "string") {
+          if (typeof flow.id !== "string" || typeof flow.data !== "object") {
             throw new Error("Invalid flow format");
           }
 
-          await workflowRepository.insert({ data: flow.data });
+          await workflowRepository.insert({ data: JSON.stringify(flow.data) });
         }
         getWorkflows();
         toast.success("Flows and plugins imported successfully");
       } catch (error: any) {
+        console.log(error);
         toast.error(error.message || "Failed to import");
       }
     };

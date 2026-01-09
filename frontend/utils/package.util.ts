@@ -3,23 +3,27 @@ import { NodeBase } from "core-package-mini-n8n";
 class PackageUtil {
   async load(
     customPackages: Array<{ url: string; libraryName: string }>,
-    state: any = {}
+    state: any = {},
   ): Promise<Array<NodeBase>> {
     await this.install(customPackages);
     const customNode: Array<NodeBase> = [];
     for (const customPackage of customPackages) {
-      const instance = eval(`${customPackage.libraryName}`);
-      if (instance.default) {
-        customNode.push(new instance.default(state));
-      } else {
-        customNode.push(new instance(state));
+      try {
+        const instance = eval(`${customPackage.libraryName}`);
+        if (instance.default) {
+          customNode.push(new instance.default(state));
+        } else {
+          customNode.push(new instance(state));
+        }
+      } catch (error) {
+        console.error(error);
       }
     }
     return customNode;
   }
 
   async install(
-    customPackages: Array<{ url: string; libraryName: string }>
+    customPackages: Array<{ url: string; libraryName: string }>,
   ): Promise<void> {
     for (const customPackage of customPackages) {
       if (document.getElementById(customPackage.libraryName)) {
